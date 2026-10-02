@@ -1,0 +1,71 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  background: #f0f2f5;
+  color: #262626;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767px) {
+  .desktop-sider {
+    display: none !important;
+  }
+
+  .main-layout {
+    margin-left: 0 !important;
+  }
+
+  .app-header {
+    padding: 0 12px !important;
+  }
+
+  .app-content {
+    padding: 12px 10px 24px !important;
+  }
+
+  .mobile-menu-btn {
+    display: inline-flex !important;
+  }
+
+  .username-text {
+    display: inline !important;
+  }
+}
+
+@media (max-width: 575px) {
+  .ant-table-tbody > tr > td,
+  .ant-table-thead > tr > th {
+    padding: 8px 6px;
+  }
+
+  .ant-card .ant-card-body {
+    padding: 14px 12px;
+  }
+
+  .ant-statistic-title {
+    font-size: 12px !important;
+  }
+
+  .ant-statistic-content-value {
+    font-size: 16px !important;
+  }
+}
