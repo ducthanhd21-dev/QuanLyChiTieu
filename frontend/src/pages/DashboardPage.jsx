@@ -480,7 +480,7 @@ const DashboardPage = () => {
             <Text type="secondary" style={{ display: 'block', marginBottom: 14 }}>
               Bạn có thể sao chép nhanh toàn bộ các khoản từ tháng {selectedMonth.subtract(1, 'month').format('MM/YYYY')} sang tháng này chỉ với 1 click!
             </Text>
-            <Space>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'center' }}>
               <Button
                 type="primary"
                 icon={<CopyOutlined />}
@@ -495,18 +495,18 @@ const DashboardPage = () => {
               >
                 Thêm khoản mới
               </Button>
-            </Space>
+            </div>
           </Card>
         )}
 
         {/* Bills List */}
         <Card
           title={
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Text strong style={{ fontSize: 15 }}>Danh sách khoản thanh toán</Text>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', minWidth: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0, overflow: 'hidden' }}>
+                <Text strong style={{ fontSize: 15, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Danh sách khoản thanh toán</Text>
                 {summary?.bills?.length > 0 && (
-                  <Tag color="blue" style={{ margin: 0, borderRadius: 10 }}>
+                  <Tag color="blue" style={{ margin: 0, borderRadius: 10, flexShrink: 0 }}>
                     {summary.bills.length} khoản
                   </Tag>
                 )}
@@ -519,7 +519,7 @@ const DashboardPage = () => {
                   icon={<CopyOutlined />}
                   onClick={handleCopyFromPreviousMonth}
                   loading={copying}
-                  style={{ color: '#1890ff' }}
+                  style={{ color: '#1890ff', flexShrink: 0, marginLeft: 8 }}
                 >
                   {isMobile ? 'Sao chép' : 'Sao chép thêm từ tháng trước'}
                 </Button>
