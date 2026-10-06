@@ -1,7 +1,5 @@
-const CACHE_NAME = 'billtrack-v1';
+const CACHE_NAME = 'billtrack-v2';
 const urlsToCache = [
-  '/',
-  '/index.html',
   '/favicon.svg',
   '/manifest.json'
 ];
@@ -34,9 +32,23 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Network-first for HTML: always fetch latest index.html from network
+  if (event.request.mode === 'navigate' || event.request.url.endsWith('.html')) {
+    event.respondWith(
+      fetch(event.request).catch(() => caches.match('/index.html'))
+    );
+    return;
+  }
+
+  // Cache-first for static assets (JS, CSS have content-hash in filename)
   event.respondWith(
     caches.match(event.request).then((response) => {
-      return response || fetch(event.request);
+      return response || fetch(event.request).then((networkResponse) => {
+        return caches.open(CACHE_NAME).then((cache) => {
+          cache.put(event.request, networkResponse.clone());
+          return networkResponse;
+        });
+      });
     })
   );
 });
