@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const { authenticate } = require('../middleware/auth');
+const authMiddleware = require('../middleware/auth');
 const incomeController = require('../controllers/incomeController');
 
-router.use(authenticate);
+router.use(authMiddleware);
 
 router.get('/', incomeController.getByMonth);
 router.post('/', incomeController.create);
