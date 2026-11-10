@@ -34,8 +34,14 @@ const IncomePage = () => {
       const res = await incomeService.getByMonth(month);
       setEntries(res.data.data.entries);
       setTotal(res.data.data.total);
-    } catch {
-      notification.error({ message: 'Không thể tải dữ liệu thu nhập.' });
+    } catch (err) {
+      // Nếu API chưa sẵn sàng (404/500) thì chỉ hiển thị trống, không báo lỗi
+      const status = err?.response?.status;
+      if (status !== 404 && status !== 500) {
+        notification.error({ message: 'Không thể tải dữ liệu thu nhập.' });
+      }
+      setEntries([]);
+      setTotal(0);
     } finally {
       setLoading(false);
     }
