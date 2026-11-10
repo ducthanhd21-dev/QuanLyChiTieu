@@ -54,16 +54,21 @@ const DashboardPage = () => {
     setLoading(true);
     try {
       const month = selectedMonth.format('YYYY-MM');
-      const [sumRes, budgetRes, alertRes, incomeRes] = await Promise.all([
+      const [sumRes, budgetRes, alertRes] = await Promise.all([
         dashboardService.getSummary(month),
         budgetService.getBudget(month),
         billService.getAlerts(),
-        incomeService.getByMonth(month),
       ]);
       setSummary(sumRes.data.data);
       setBudget(budgetRes.data.data);
       setAlerts(alertRes.data.data);
-      setIncomeTotal(incomeRes.data.data.total || 0);
+      // Income is fetched separately so dashboard still loads if it fails
+      try {
+        const incomeRes = await incomeService.getByMonth(month);
+        setIncomeTotal(incomeRes.data.data.total || 0);
+      } catch {
+        setIncomeTotal(0);
+      }
     } catch {
       notification.error({ message: 'Không thể tải dữ liệu dashboard.' });
     } finally {
