@@ -9,6 +9,7 @@ import {
   MenuOutlined,
   CrownOutlined,
   ThunderboltFilled,
+  RiseOutlined,
 } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -27,6 +28,7 @@ const AppLayout = ({ children }) => {
   const baseMenuItems = [
     { key: '/dashboard', icon: <DashboardOutlined />, label: 'Dashboard' },
     { key: '/bills', icon: <FileTextOutlined />, label: 'Khoản thanh toán' },
+    { key: '/income', icon: <RiseOutlined style={{ color: '#52c41a' }} />, label: 'Thu nhập' },
     { key: '/statistics', icon: <BarChartOutlined />, label: 'Thống kê' },
     { key: '/settings', icon: <SettingOutlined />, label: 'Cài đặt' },
   ];

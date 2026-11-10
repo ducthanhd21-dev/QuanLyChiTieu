@@ -8,10 +8,10 @@ import {
   PlusOutlined, EditOutlined, DeleteOutlined,
   DollarOutlined, CheckCircleOutlined, ClockCircleOutlined, FireOutlined,
   CalendarOutlined, TagOutlined, FileExcelOutlined, CopyOutlined,
-  WarningOutlined, PaperClipOutlined, SyncOutlined, AimOutlined,
+  WarningOutlined, PaperClipOutlined, SyncOutlined, AimOutlined, RiseOutlined,
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
-import { dashboardService, billService, budgetService } from '../services';
+import { dashboardService, billService, budgetService, incomeService } from '../services';
 import { useAuth } from '../contexts/AuthContext';
 import { formatCurrency, formatDate, getBillStatus, STATUS_CONFIG } from '../utils/helpers';
 import { exportBillsToExcel } from '../utils/exportExcel';
@@ -41,6 +41,9 @@ const DashboardPage = () => {
   const [budgetInput, setBudgetInput] = useState(0);
   const [budgetLoading, setBudgetLoading] = useState(false);
 
+  // Income
+  const [incomeTotal, setIncomeTotal] = useState(0);
+
   // Receipt preview modal
   const [previewImage, setPreviewImage] = useState(null);
 
@@ -51,14 +54,16 @@ const DashboardPage = () => {
     setLoading(true);
     try {
       const month = selectedMonth.format('YYYY-MM');
-      const [sumRes, budgetRes, alertRes] = await Promise.all([
+      const [sumRes, budgetRes, alertRes, incomeRes] = await Promise.all([
         dashboardService.getSummary(month),
         budgetService.getBudget(month),
         billService.getAlerts(),
+        incomeService.getByMonth(month),
       ]);
       setSummary(sumRes.data.data);
       setBudget(budgetRes.data.data);
       setAlerts(alertRes.data.data);
+      setIncomeTotal(incomeRes.data.data.total || 0);
     } catch {
       notification.error({ message: 'Không thể tải dữ liệu dashboard.' });
     } finally {
@@ -202,6 +207,10 @@ const DashboardPage = () => {
   const totalSpent = summary ? summary.totalAmount : 0;
   const budgetProgress = budgetAmount > 0 ? Math.round((totalSpent / budgetAmount) * 100) : 0;
   const budgetRemaining = budgetAmount - totalSpent;
+
+  // Income vs spending
+  const incomeVsSpending = incomeTotal - (summary ? summary.totalAmount : 0);
+  const incomeProgress = incomeTotal > 0 ? Math.round(((summary ? summary.totalAmount : 0) / incomeTotal) * 100) : 0;
 
   return (
     <div>
@@ -461,6 +470,86 @@ const DashboardPage = () => {
             </Card>
           </Col>
         </Row>
+
+        {/* Income vs Spending Card */}
+        <Card
+          style={{ borderRadius: 14, border: 'none', boxShadow: '0 2px 10px rgba(0,0,0,0.05)', marginBottom: 20 }}
+          bodyStyle={{ padding: isMobile ? '14px 12px' : '18px 24px' }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14, flexWrap: 'wrap', gap: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <RiseOutlined style={{ color: '#52c41a', fontSize: 18 }} />
+              <Text strong style={{ fontSize: isMobile ? 14 : 15 }}>
+                Thu nhập vs Chi tiêu tháng {selectedMonth.format('MM/YYYY')}
+              </Text>
+            </div>
+            <Button
+              type="link"
+              size="small"
+              onClick={() => window.location.href = '/income'}
+              style={{ padding: 0 }}
+            >
+              + Cập nhật thu nhập
+            </Button>
+          </div>
+          <Row gutter={[12, 12]} style={{ marginBottom: 12 }}>
+            <Col xs={8}>
+              <div style={{ textAlign: 'center' }}>
+                <Text type="secondary" style={{ fontSize: 11, display: 'block' }}>Thu nhập</Text>
+                <div style={{ fontWeight: 700, fontSize: isMobile ? 14 : 17, color: '#52c41a' }}>
+                  {formatCurrency(incomeTotal)}
+                </div>
+              </div>
+            </Col>
+            <Col xs={8}>
+              <div style={{ textAlign: 'center' }}>
+                <Text type="secondary" style={{ fontSize: 11, display: 'block' }}>Chi tiêu</Text>
+                <div style={{ fontWeight: 700, fontSize: isMobile ? 14 : 17, color: '#1890ff' }}>
+                  {formatCurrency(summary ? summary.totalAmount : 0)}
+                </div>
+              </div>
+            </Col>
+            <Col xs={8}>
+              <div style={{ textAlign: 'center' }}>
+                <Text type="secondary" style={{ fontSize: 11, display: 'block' }}>
+                  {incomeVsSpending >= 0 ? 'Tiết kiệm' : 'Vượt chi'}
+                </Text>
+                <div style={{
+                  fontWeight: 700,
+                  fontSize: isMobile ? 14 : 17,
+                  color: incomeVsSpending >= 0 ? '#52c41a' : '#ff4d4f',
+                }}>
+                  {incomeVsSpending >= 0 ? '+' : ''}{formatCurrency(incomeVsSpending)}
+                </div>
+              </div>
+            </Col>
+          </Row>
+          {incomeTotal > 0 ? (
+            <>
+              <Progress
+                percent={Math.min(incomeProgress, 100)}
+                status={incomeProgress > 100 ? 'exception' : undefined}
+                strokeColor={incomeProgress > 100 ? '#ff4d4f' : incomeProgress > 80 ? '#faad14' : '#52c41a'}
+                trailColor="#f0f0f0"
+                strokeWidth={10}
+                style={{ marginBottom: 4 }}
+              />
+              <Text type="secondary" style={{ fontSize: 11 }}>
+                {incomeProgress <= 100
+                  ? `Chi tiêu chiếm ${incomeProgress}% thu nhập — còn tiết kiệm được ${formatCurrency(incomeVsSpending)}`
+                  : `⚠️ Chi tiêu vượt thu nhập ${formatCurrency(Math.abs(incomeVsSpending))}`
+                }
+              </Text>
+            </>
+          ) : (
+            <div style={{ textAlign: 'center', paddingTop: 4 }}>
+              <Text type="secondary" style={{ fontSize: 12 }}>
+                Chưa có dữ liệu thu nhập.{' '}
+                <a href="/income" style={{ color: '#52c41a' }}>Thêm thu nhập ngay →</a>
+              </Text>
+            </div>
+          )}
+        </Card>
 
         {/* Copy from previous month banner if 0 bills */}
         {summary && summary.bills.length === 0 && (

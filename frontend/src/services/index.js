@@ -39,3 +39,10 @@ export const budgetService = {
   setBudget: (data) => api.post('/budget', data),
   removeBudget: (month) => api.delete('/budget', { params: { month } }),
 };
+
+export const incomeService = {
+  getByMonth: (month) => api.get('/income', { params: { month } }),
+  create: (data) => api.post('/income', data),
+  update: (id, data) => api.put(`/income/${id}`, data),
+  remove: (id) => api.delete(`/income/${id}`),
+};
