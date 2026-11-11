@@ -5,6 +5,7 @@ const incomeController = require('../controllers/incomeController');
 
 router.use(authMiddleware);
 
+router.get('/monthly', incomeController.getMonthly);
 router.get('/', incomeController.getByMonth);
 router.post('/', incomeController.create);
 router.put('/:id', incomeController.update);

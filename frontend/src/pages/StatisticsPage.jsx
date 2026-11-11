@@ -7,7 +7,7 @@ import {
 } from 'chart.js';
 import { Bar, Doughnut } from 'react-chartjs-2';
 import dayjs from 'dayjs';
-import { statsService } from '../services';
+import { statsService, incomeService } from '../services';
 import { formatCurrency } from '../utils/helpers';
 
 ChartJS.register(
@@ -29,6 +29,7 @@ const StatisticsPage = () => {
   const isMobile = !screens.md;
 
   const [monthlyData, setMonthlyData] = useState([]);
+  const [monthlyIncome, setMonthlyIncome] = useState([]);
   const [categoryData, setCategoryData] = useState([]);
   const [selectedMonth, setSelectedMonth] = useState(dayjs());
   const [loading, setLoading] = useState(false);
@@ -42,6 +43,13 @@ const StatisticsPage = () => {
       ]);
       setMonthlyData(monthlyRes.data.data.reverse());
       setCategoryData(categoryRes.data.data);
+
+      try {
+        const incomeRes = await incomeService.getMonthly();
+        setMonthlyIncome(incomeRes.data.data || []);
+      } catch {
+        setMonthlyIncome([]);
+      }
     } catch {
       notification.error({ message: 'Không thể tải dữ liệu thống kê.' });
     } finally {
@@ -53,16 +61,41 @@ const StatisticsPage = () => {
     fetchStats();
   }, [fetchStats]);
 
-  // Bar chart: monthly totals with rounded corners
+  // Combine monthly bills and income data
+  const monthMap = new Map();
+
+  monthlyData.forEach((d) => {
+    monthMap.set(d.month, {
+      month: d.month,
+      totalAmount: parseFloat(d.total_amount) || 0,
+      totalIncome: 0,
+    });
+  });
+
+  monthlyIncome.forEach((d) => {
+    if (monthMap.has(d.month)) {
+      monthMap.get(d.month).totalIncome = parseFloat(d.total_income) || 0;
+    } else {
+      monthMap.set(d.month, {
+        month: d.month,
+        totalAmount: 0,
+        totalIncome: parseFloat(d.total_income) || 0,
+      });
+    }
+  });
+
+  const chartMonths = Array.from(monthMap.values()).sort((a, b) => a.month.localeCompare(b.month));
+
+  // Bar chart: monthly bills vs income with rounded corners
   const barChartData = {
-    labels: monthlyData.map((d) => {
+    labels: chartMonths.map((d) => {
       const [year, month] = d.month.split('-');
       return `${month}/${year}`;
     }),
     datasets: [
       {
         label: 'Tổng số tiền',
-        data: monthlyData.map((d) => parseFloat(d.total_amount)),
+        data: chartMonths.map((d) => d.totalAmount),
         backgroundColor: 'rgba(24, 144, 255, 0.75)',
         borderColor: '#1890ff',
         borderWidth: 1.5,
@@ -72,8 +105,8 @@ const StatisticsPage = () => {
         categoryPercentage: 0.75,
       },
       {
-        label: 'Đã thanh toán',
-        data: monthlyData.map((d) => parseFloat(d.paid_amount)),
+        label: 'Tổng thu nhập',
+        data: chartMonths.map((d) => d.totalIncome),
         backgroundColor: 'rgba(82, 196, 26, 0.75)',
         borderColor: '#52c41a',
         borderWidth: 1.5,
@@ -196,7 +229,7 @@ const StatisticsPage = () => {
           {/* Bar chart: monthly */}
           <Col xs={24} lg={14}>
             <Card
-              title={<span style={{ fontWeight: 600 }}>Tổng tiền theo tháng</span>}
+              title={<span style={{ fontWeight: 600 }}>Chi tiêu & Thu nhập theo tháng</span>}
               style={{
                 borderRadius: 16,
                 border: 'none',
@@ -204,7 +237,7 @@ const StatisticsPage = () => {
               }}
               bodyStyle={{ padding: isMobile ? 12 : 24 }}
             >
-              {monthlyData.length > 0 ? (
+              {chartMonths.length > 0 ? (
                 <div style={{ minHeight: isMobile ? 260 : 320 }}>
                   <Bar data={barChartData} options={chartOptions} />
                 </div>

@@ -42,6 +42,7 @@ export const budgetService = {
 
 export const incomeService = {
   getByMonth: (month) => api.get('/income', { params: { month } }),
+  getMonthly: () => api.get('/income/monthly'),
   create: (data) => api.post('/income', data),
   update: (id, data) => api.put(`/income/${id}`, data),
   remove: (id) => api.delete(`/income/${id}`),

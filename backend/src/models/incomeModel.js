@@ -55,6 +55,22 @@ const IncomeModel = {
     );
     return rowCount > 0;
   },
+
+  // Get monthly income totals (last 12 recorded months)
+  async getMonthlyTotals(userId) {
+    const { rows } = await pool.query(
+      `SELECT
+         TO_CHAR(date, 'YYYY-MM') AS month,
+         COALESCE(SUM(amount), 0) AS total_income
+       FROM income_entries
+       WHERE user_id = $1
+       GROUP BY TO_CHAR(date, 'YYYY-MM')
+       ORDER BY month DESC
+       LIMIT 12`,
+      [userId]
+    );
+    return rows;
+  },
 };
 
 module.exports = IncomeModel;

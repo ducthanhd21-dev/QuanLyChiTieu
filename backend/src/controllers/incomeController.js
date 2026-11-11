@@ -65,6 +65,18 @@ const incomeController = {
       res.status(500).json({ success: false, message: 'Lỗi server.' });
     }
   },
+
+  // GET /api/income/monthly
+  async getMonthly(req, res) {
+    try {
+      const userId = req.user.id;
+      const rows = await IncomeModel.getMonthlyTotals(userId);
+      res.json({ success: true, data: rows });
+    } catch (err) {
+      console.error('getMonthly income error:', err);
+      res.status(500).json({ success: false, message: 'Lỗi server.' });
+    }
+  },
 };
 
 module.exports = incomeController;
