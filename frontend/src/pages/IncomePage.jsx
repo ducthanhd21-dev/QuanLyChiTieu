@@ -139,7 +139,7 @@ const IncomePage = () => {
       {/* Summary card */}
       <Row gutter={[12, 12]} style={{ marginBottom: 20 }}>
         <Col xs={12} sm={8}>
-          <Card style={{ borderRadius: 14, border: 'none', boxShadow: '0 2px 10px rgba(0,0,0,0.05)' }}
+          <Card style={{ borderRadius: 14, border: 'none', boxShadow: '0 2px 10px rgba(0,0,0,0.05)', height: '100%' }}
             bodyStyle={{ padding: isMobile ? '12px 10px' : '18px 20px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <div style={{ width: 42, height: 42, borderRadius: 12, background: '#f6ffed', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, color: '#52c41a', flexShrink: 0 }}>
@@ -155,14 +155,14 @@ const IncomePage = () => {
           </Card>
         </Col>
         <Col xs={12} sm={8}>
-          <Card style={{ borderRadius: 14, border: 'none', boxShadow: '0 2px 10px rgba(0,0,0,0.05)' }}
+          <Card style={{ borderRadius: 14, border: 'none', boxShadow: '0 2px 10px rgba(0,0,0,0.05)', height: '100%' }}
             bodyStyle={{ padding: isMobile ? '12px 10px' : '18px 20px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <div style={{ width: 42, height: 42, borderRadius: 12, background: '#e6f7ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, color: '#1890ff', flexShrink: 0 }}>
                 <CalendarOutlined />
               </div>
               <div>
-                <Text type="secondary" style={{ fontSize: 12, display: 'block' }}>Số ngày có thu nhập</Text>
+                <Text type="secondary" style={{ fontSize: 12, display: 'block' }}>Số ngày</Text>
                 <div style={{ fontWeight: 700, fontSize: isMobile ? 15 : 18, color: '#1890ff' }}>
                   {entries.length} ngày
                 </div>
@@ -171,7 +171,7 @@ const IncomePage = () => {
           </Card>
         </Col>
         <Col xs={24} sm={8}>
-          <Card style={{ borderRadius: 14, border: 'none', boxShadow: '0 2px 10px rgba(0,0,0,0.05)' }}
+          <Card style={{ borderRadius: 14, border: 'none', boxShadow: '0 2px 10px rgba(0,0,0,0.05)', height: '100%' }}
             bodyStyle={{ padding: isMobile ? '12px 10px' : '18px 20px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <div style={{ width: 42, height: 42, borderRadius: 12, background: '#fff7e6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, color: '#fa8c16', flexShrink: 0 }}>
@@ -191,10 +191,12 @@ const IncomePage = () => {
       {/* Entries list */}
       <Card
         title={
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <Text strong style={{ fontSize: 15 }}>Danh sách thu nhập tháng {selectedMonth.format('MM/YYYY')}</Text>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
+            <Text strong style={{ fontSize: isMobile ? 14 : 15 }}>
+              Danh sách thu nhập {isMobile ? selectedMonth.format('MM/YYYY') : `tháng ${selectedMonth.format('MM/YYYY')}`}
+            </Text>
             {entries.length > 0 && (
-              <Tag color="green" style={{ margin: 0, borderRadius: 10 }}>{entries.length} khoản</Tag>
+              <Tag color="green" style={{ margin: 0, borderRadius: 10, flexShrink: 0 }}>{entries.length} khoản</Tag>
             )}
           </div>
         }
