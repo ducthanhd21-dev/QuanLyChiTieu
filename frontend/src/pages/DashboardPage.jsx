@@ -228,31 +228,65 @@ const DashboardPage = () => {
           {overdueAlerts.length > 0 && (
             <Alert
               message={
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
-                  <span>
+                <div>
+                  <div style={{ marginBottom: 6, lineHeight: 1.4 }}>
                     <b>🚨 Cảnh báo quá hạn:</b> Bạn có <b>{overdueAlerts.length}</b> khoản thanh toán đã quá hạn chưa đóng!
-                  </span>
-                  <Tag color="error">{overdueAlerts.map(a => a.title).join(', ')}</Tag>
+                  </div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                    {overdueAlerts.map((a) => (
+                      <Tag
+                        key={a.id}
+                        color="error"
+                        style={{
+                          margin: 0,
+                          borderRadius: 6,
+                          fontSize: 11,
+                          padding: '1px 8px',
+                          whiteSpace: 'normal',
+                          wordBreak: 'break-word',
+                        }}
+                      >
+                        {a.title}
+                      </Tag>
+                    ))}
+                  </div>
                 </div>
               }
               type="error"
               showIcon
-              style={{ marginBottom: 8, borderRadius: 10 }}
+              style={{ marginBottom: 8, borderRadius: 10, overflow: 'hidden' }}
             />
           )}
           {upcomingAlerts.length > 0 && (
             <Alert
               message={
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
-                  <span>
+                <div>
+                  <div style={{ marginBottom: 6, lineHeight: 1.4 }}>
                     <b>⏰ Sắp đến hạn:</b> Bạn có <b>{upcomingAlerts.length}</b> khoản cần thanh toán trong 3 ngày tới!
-                  </span>
-                  <Tag color="warning">{upcomingAlerts.map(a => a.title).join(', ')}</Tag>
+                  </div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                    {upcomingAlerts.map((a) => (
+                      <Tag
+                        key={a.id}
+                        color="warning"
+                        style={{
+                          margin: 0,
+                          borderRadius: 6,
+                          fontSize: 11,
+                          padding: '1px 8px',
+                          whiteSpace: 'normal',
+                          wordBreak: 'break-word',
+                        }}
+                      >
+                        {a.title}
+                      </Tag>
+                    ))}
+                  </div>
                 </div>
               }
               type="warning"
               showIcon
-              style={{ borderRadius: 10 }}
+              style={{ borderRadius: 10, overflow: 'hidden' }}
             />
           )}
         </div>
