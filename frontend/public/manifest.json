@@ -1,7 +1,7 @@
 {
-  "name": "BillTrack - Quản lý thanh toán",
-  "short_name": "BillTrack",
-  "description": "Ứng dụng theo dõi và quản lý các khoản thanh toán, hóa đơn cá nhân",
+  "name": "Quản Lý Chi Tiêu - Đức Thành",
+  "short_name": "Quản Lý Chi Tiêu",
+  "description": "Ứng dụng theo dõi thu chi và quản lý các khoản thanh toán cá nhân",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#f0f2f5",

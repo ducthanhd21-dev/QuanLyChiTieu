@@ -53,9 +53,9 @@ const LoginPage = () => {
           }}>
             <ThunderboltFilled style={{ fontSize: 28, color: '#fff' }} />
           </div>
-          <Title level={2} style={{ margin: '8px 0 2px' }}>BillTrack</Title>
+          <Title level={2} style={{ margin: '8px 0 2px' }}>Quản Lý Chi Tiêu</Title>
           <Text type="secondary" style={{ fontSize: 13 }}>
-            by <span style={{ color: '#1890ff', fontWeight: 600 }}>DucThanh</span> · Quản lý thanh toán
+            bởi <span style={{ color: '#1890ff', fontWeight: 600 }}>Đức Thành</span> · Quản lý thu chi & hóa đơn
           </Text>
         </div>
 

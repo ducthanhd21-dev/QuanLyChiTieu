@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Layout, Menu, Button, Avatar, Typography, Drawer, Modal } from 'antd';
 import {
   DashboardOutlined,
+  HomeOutlined,
   FileTextOutlined,
   BarChartOutlined,
   SettingOutlined,
@@ -26,7 +27,7 @@ const AppLayout = ({ children }) => {
   const [collapsed, setCollapsed] = useState(false);
 
   const baseMenuItems = [
-    { key: '/dashboard', icon: <DashboardOutlined />, label: 'Dashboard' },
+    { key: '/dashboard', icon: <HomeOutlined />, label: 'Trang chủ' },
     { key: '/bills', icon: <FileTextOutlined />, label: 'Khoản thanh toán' },
     { key: '/income', icon: <RiseOutlined style={{ color: '#52c41a' }} />, label: 'Thu nhập' },
     { key: '/statistics', icon: <BarChartOutlined />, label: 'Thống kê' },
@@ -98,18 +99,19 @@ const AppLayout = ({ children }) => {
           <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.2 }}>
             <span style={{
               color: '#fff',
-              fontSize: 17,
+              fontSize: 16,
               fontWeight: 700,
-              letterSpacing: '0.4px',
+              letterSpacing: '0.3px',
+              whiteSpace: 'nowrap',
             }}>
-              BillTrack
+              Quản Lý Chi Tiêu
             </span>
             <span style={{
               color: 'rgba(255,255,255,0.45)',
               fontSize: 11,
               marginTop: 3,
             }}>
-              by <span style={{ color: '#69c0ff', fontWeight: 500 }}>DucThanh</span>
+              bởi <span style={{ color: '#69c0ff', fontWeight: 500 }}>Đức Thành</span>
             </span>
           </div>
         )}
@@ -175,6 +177,7 @@ const AppLayout = ({ children }) => {
         onCollapse={setCollapsed}
         breakpoint="lg"
         collapsedWidth={80}
+        width={220}
         style={{
           position: 'fixed',
           left: 0,
@@ -198,14 +201,14 @@ const AppLayout = ({ children }) => {
         open={mobileMenuOpen}
         onClose={() => setMobileMenuOpen(false)}
         bodyStyle={{ padding: 0, background: '#001529', display: 'flex', flexDirection: 'column' }}
-        width={250}
+        width={260}
         closable={false}
       >
         <SideMenu />
       </Drawer>
 
       {/* Main layout */}
-      <Layout style={{ marginLeft: collapsed ? 80 : 200, transition: 'margin-left 0.2s' }} className="main-layout">
+      <Layout style={{ marginLeft: collapsed ? 80 : 220, transition: 'margin-left 0.2s' }} className="main-layout">
         <Header
           className="app-header"
           style={{

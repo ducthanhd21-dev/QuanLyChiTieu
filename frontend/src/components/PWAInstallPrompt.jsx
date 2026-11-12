@@ -100,7 +100,7 @@ const PWAInstallPrompt = ({ type = 'banner' }) => {
           title={
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               {isIOS ? <AppleOutlined style={{ fontSize: 20 }} /> : <AndroidOutlined style={{ fontSize: 20 }} />}
-              <span>Cài đặt BillTrack về màn hình chính</span>
+              <span>Cài đặt ứng dụng về màn hình chính</span>
             </div>
           }
           open={iosModalOpen}
@@ -116,7 +116,7 @@ const PWAInstallPrompt = ({ type = 'banner' }) => {
             {isIOS ? (
               <div>
                 <Text style={{ display: 'block', marginBottom: 14 }}>
-                  Để cài đặt BillTrack về iPhone/iPad của bạn:
+                  Để cài đặt ứng dụng về iPhone/iPad của bạn:
                 </Text>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
@@ -140,7 +140,7 @@ const PWAInstallPrompt = ({ type = 'banner' }) => {
             ) : (
               <div>
                 <Text style={{ display: 'block', marginBottom: 14 }}>
-                  Để cài đặt BillTrack trên Android / Máy tính:
+                  Để cài đặt ứng dụng trên Android / Máy tính:
                 </Text>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
@@ -198,7 +198,7 @@ const PWAInstallPrompt = ({ type = 'banner' }) => {
           </div>
           <div style={{ minWidth: 0 }}>
             <div style={{ fontWeight: 600, fontSize: 13, lineHeight: 1.3 }}>
-              Cài đặt app BillTrack về điện thoại
+              Cài đặt ứng dụng về điện thoại
             </div>
             <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.85)', marginTop: 2 }}>
               Dùng như app thật, mở nhanh không cần gõ web
@@ -236,7 +236,7 @@ const PWAInstallPrompt = ({ type = 'banner' }) => {
         title={
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             {isIOS ? <AppleOutlined style={{ fontSize: 20 }} /> : <AndroidOutlined style={{ fontSize: 20 }} />}
-            <span>Cài đặt BillTrack về màn hình chính</span>
+            <span>Cài đặt ứng dụng về màn hình chính</span>
           </div>
         }
         open={iosModalOpen}
@@ -252,7 +252,7 @@ const PWAInstallPrompt = ({ type = 'banner' }) => {
           {isIOS ? (
             <div>
               <Text style={{ display: 'block', marginBottom: 14 }}>
-                Để cài đặt BillTrack về iPhone/iPad của bạn:
+                Để cài đặt ứng dụng về iPhone/iPad của bạn:
               </Text>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
@@ -276,7 +276,7 @@ const PWAInstallPrompt = ({ type = 'banner' }) => {
           ) : (
             <div>
               <Text style={{ display: 'block', marginBottom: 14 }}>
-                Để cài đặt BillTrack trên Android / Máy tính:
+                Để cài đặt ứng dụng trên Android / Máy tính:
               </Text>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>

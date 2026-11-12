@@ -70,7 +70,7 @@ const DashboardPage = () => {
         setIncomeTotal(0);
       }
     } catch {
-      notification.error({ message: 'Không thể tải dữ liệu dashboard.' });
+      notification.error({ message: 'Không thể tải dữ liệu trang chủ.' });
     } finally {
       setLoading(false);
     }
