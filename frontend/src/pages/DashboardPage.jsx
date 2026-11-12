@@ -206,6 +206,8 @@ const DashboardPage = () => {
   // Overdue and upcoming counts
   const overdueAlerts = alerts.filter(a => parseInt(a.days_remaining) < 0);
   const upcomingAlerts = alerts.filter(a => parseInt(a.days_remaining) >= 0);
+  const overdueTotal = overdueAlerts.reduce((sum, a) => sum + (parseFloat(a.amount) || 0), 0);
+  const upcomingTotal = upcomingAlerts.reduce((sum, a) => sum + (parseFloat(a.amount) || 0), 0);
 
   // Budget calculations
   const budgetAmount = budget ? parseFloat(budget.amount) : 0;
@@ -226,68 +228,127 @@ const DashboardPage = () => {
       {(overdueAlerts.length > 0 || upcomingAlerts.length > 0) && (
         <div style={{ marginBottom: 16 }}>
           {overdueAlerts.length > 0 && (
-            <Alert
-              message={
-                <div>
-                  <div style={{ marginBottom: 6, lineHeight: 1.4 }}>
-                    <b>🚨 Cảnh báo quá hạn:</b> Bạn có <b>{overdueAlerts.length}</b> khoản thanh toán đã quá hạn chưa đóng!
-                  </div>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                    {overdueAlerts.map((a) => (
-                      <Tag
-                        key={a.id}
-                        color="error"
-                        style={{
-                          margin: 0,
-                          borderRadius: 6,
-                          fontSize: 11,
-                          padding: '1px 8px',
-                          whiteSpace: 'normal',
-                          wordBreak: 'break-word',
-                        }}
-                      >
-                        {a.title}
-                      </Tag>
-                    ))}
-                  </div>
+            <div style={{
+              background: '#fff2f0',
+              border: '1px solid #ffccc7',
+              borderRadius: 14,
+              padding: '12px 14px',
+              marginBottom: 10,
+              boxShadow: '0 2px 8px rgba(255, 77, 79, 0.06)',
+            }}>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                gap: 6,
+                marginBottom: 8,
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ fontSize: 16 }}>🚨</span>
+                  <span style={{ fontWeight: 700, color: '#cf1322', fontSize: isMobile ? 13 : 14 }}>
+                    Quá hạn: {overdueAlerts.length} khoản chưa đóng
+                  </span>
                 </div>
-              }
-              type="error"
-              showIcon
-              style={{ marginBottom: 8, borderRadius: 10, overflow: 'hidden' }}
-            />
+                <span style={{ fontSize: 12, fontWeight: 700, color: '#ff4d4f' }}>
+                  Tổng: {formatCurrency(overdueTotal)}
+                </span>
+              </div>
+
+              <div style={{
+                display: 'flex',
+                gap: 6,
+                overflowX: 'auto',
+                whiteSpace: 'nowrap',
+                paddingBottom: 2,
+                scrollbarWidth: 'none',
+              }}>
+                {overdueAlerts.map((a) => (
+                  <span
+                    key={a.id}
+                    style={{
+                      background: '#fff',
+                      border: '1px solid #ffa39e',
+                      color: '#cf1322',
+                      fontSize: 11,
+                      padding: '3px 10px',
+                      borderRadius: 16,
+                      fontWeight: 500,
+                      flexShrink: 0,
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 4,
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
+                    }}
+                  >
+                    <span>{a.title}</span>
+                    <span style={{ color: '#ff4d4f', fontWeight: 600 }}>{formatCurrency(a.amount)}</span>
+                  </span>
+                ))}
+              </div>
+            </div>
           )}
+
           {upcomingAlerts.length > 0 && (
-            <Alert
-              message={
-                <div>
-                  <div style={{ marginBottom: 6, lineHeight: 1.4 }}>
-                    <b>⏰ Sắp đến hạn:</b> Bạn có <b>{upcomingAlerts.length}</b> khoản cần thanh toán trong 3 ngày tới!
-                  </div>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                    {upcomingAlerts.map((a) => (
-                      <Tag
-                        key={a.id}
-                        color="warning"
-                        style={{
-                          margin: 0,
-                          borderRadius: 6,
-                          fontSize: 11,
-                          padding: '1px 8px',
-                          whiteSpace: 'normal',
-                          wordBreak: 'break-word',
-                        }}
-                      >
-                        {a.title}
-                      </Tag>
-                    ))}
-                  </div>
+            <div style={{
+              background: '#fffbe6',
+              border: '1px solid #ffe58f',
+              borderRadius: 14,
+              padding: '12px 14px',
+              marginBottom: 8,
+              boxShadow: '0 2px 8px rgba(250, 173, 20, 0.06)',
+            }}>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                gap: 6,
+                marginBottom: 8,
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ fontSize: 16 }}>⏰</span>
+                  <span style={{ fontWeight: 700, color: '#d46b08', fontSize: isMobile ? 13 : 14 }}>
+                    Sắp đến hạn: {upcomingAlerts.length} khoản (trong 3 ngày)
+                  </span>
                 </div>
-              }
-              type="warning"
-              showIcon
-              style={{ borderRadius: 10, overflow: 'hidden' }}
-            />
+                <span style={{ fontSize: 12, fontWeight: 700, color: '#fa8c16' }}>
+                  Tổng: {formatCurrency(upcomingTotal)}
+                </span>
+              </div>
+
+              <div style={{
+                display: 'flex',
+                gap: 6,
+                overflowX: 'auto',
+                whiteSpace: 'nowrap',
+                paddingBottom: 2,
+                scrollbarWidth: 'none',
+              }}>
+                {upcomingAlerts.map((a) => (
+                  <span
+                    key={a.id}
+                    style={{
+                      background: '#fff',
+                      border: '1px solid #ffd591',
+                      color: '#d46b08',
+                      fontSize: 11,
+                      padding: '3px 10px',
+                      borderRadius: 16,
+                      fontWeight: 500,
+                      flexShrink: 0,
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 4,
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
+                    }}
+                  >
+                    <span>{a.title}</span>
+                    <span style={{ color: '#fa8c16', fontWeight: 600 }}>{formatCurrency(a.amount)}</span>
+                  </span>
+                ))}
+              </div>
+            </div>
           )}
         </div>
       )}
