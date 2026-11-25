@@ -34,15 +34,10 @@ export const currentMonth = () => dayjs().format('YYYY-MM');
 
 export const CATEGORIES = [
   'Hóa đơn',
-  'Điện nước',
   'Tiền nhà',
-  'Internet',
-  'Điện thoại',
-  'Bảo hiểm',
-  'Học phí',
   'Ăn uống',
-  'Giao thông',
+  'Học phí',
+  'Đi lại',
   'Giải trí',
-  'Y tế',
   'Khác',
 ];

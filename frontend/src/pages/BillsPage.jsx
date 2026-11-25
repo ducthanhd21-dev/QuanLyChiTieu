@@ -91,7 +91,7 @@ const BillsPage = () => {
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
   const [filterCategory, setFilterCategory] = useState('');
-  const [filterStatus, setFilterStatus] = useState('');
+  const [filterStatus, setFilterStatus] = useState('all');
   const [selectedMonth, setSelectedMonth] = useState(null);
   const [billModalOpen, setBillModalOpen] = useState(false);
   const [editingBill, setEditingBill] = useState(null);
@@ -164,8 +164,8 @@ const BillsPage = () => {
   const groupedBills = useMemo(() => {
     const filtered = bills.filter((bill) => {
       const matchSearch = !search || bill.title.toLowerCase().includes(search.toLowerCase());
-      const matchCategory = !filterCategory || bill.category === filterCategory;
-      const matchStatus = !filterStatus || getBillStatus(bill) === filterStatus;
+      const matchCategory = !filterCategory || filterCategory === 'all' || bill.category === filterCategory;
+      const matchStatus = !filterStatus || filterStatus === 'all' || getBillStatus(bill) === filterStatus;
       const matchMonth = !selectedMonth || dayjs(bill.due_date).format('YYYY-MM') === selectedMonth.format('YYYY-MM');
       return matchSearch && matchCategory && matchStatus && matchMonth;
     });
@@ -550,11 +550,13 @@ const BillsPage = () => {
               />
               <Select
                 placeholder="Trạng thái"
-                value={filterStatus || undefined}
-                onChange={(val) => setFilterStatus(val || '')}
+                value={filterStatus}
+                onChange={(val) => setFilterStatus(val || 'all')}
                 style={{ flex: 1 }}
-                allowClear
+                dropdownMatchSelectWidth={false}
+                listHeight={400}
               >
+                <Option value="all">Tất cả trạng thái</Option>
                 <Option value="paid">Đã đóng</Option>
                 <Option value="unpaid">Chưa đóng</Option>
                 <Option value="overdue">Quá hạn</Option>
@@ -565,7 +567,10 @@ const BillsPage = () => {
               value={filterCategory || undefined}
               onChange={(val) => setFilterCategory(val || '')}
               allowClear
+              dropdownMatchSelectWidth={false}
+              listHeight={400}
             >
+              <Option value="all">Tất cả danh mục</Option>
               {CATEGORIES.map((cat) => (
                 <Option key={cat} value={cat}>{cat}</Option>
               ))}
@@ -593,20 +598,23 @@ const BillsPage = () => {
               placeholder="Danh mục"
               value={filterCategory || undefined}
               onChange={(val) => setFilterCategory(val || '')}
-              style={{ width: 140 }}
+              style={{ width: 150 }}
               allowClear
+              listHeight={400}
             >
+              <Option value="all">Tất cả danh mục</Option>
               {CATEGORIES.map((cat) => (
                 <Option key={cat} value={cat}>{cat}</Option>
               ))}
             </Select>
             <Select
               placeholder="Trạng thái"
-              value={filterStatus || undefined}
-              onChange={(val) => setFilterStatus(val || '')}
+              value={filterStatus}
+              onChange={(val) => setFilterStatus(val || 'all')}
               style={{ width: 160 }}
-              allowClear
+              listHeight={400}
             >
+              <Option value="all">Tất cả trạng thái</Option>
               <Option value="paid">Đã thanh toán</Option>
               <Option value="unpaid">Chưa thanh toán</Option>
               <Option value="overdue">Quá hạn</Option>
