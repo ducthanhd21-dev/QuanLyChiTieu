@@ -9,7 +9,6 @@ import {
   LogoutOutlined,
   MenuOutlined,
   CrownOutlined,
-  ThunderboltFilled,
   RiseOutlined,
 } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -80,20 +79,19 @@ const AppLayout = ({ children }) => {
         borderBottom: '1px solid rgba(255,255,255,0.08)',
         marginBottom: 8,
       }}>
-        {/* Modern glowing badge icon */}
-        <div style={{
-          width: 36,
-          height: 36,
-          borderRadius: 10,
-          background: 'linear-gradient(135deg, #1890ff 0%, #722ed1 100%)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          boxShadow: '0 4px 12px rgba(24, 144, 255, 0.4)',
-          flexShrink: 0,
-        }}>
-          <ThunderboltFilled style={{ fontSize: 18, color: '#fff' }} />
-        </div>
+        {/* App logo icon */}
+        <img
+          src="/icon-192.png"
+          alt="Hóa đơn"
+          style={{
+            width: 36,
+            height: 36,
+            borderRadius: 10,
+            objectFit: 'cover',
+            boxShadow: '0 4px 12px rgba(24, 144, 255, 0.35)',
+            flexShrink: 0,
+          }}
+        />
 
         {!collapsed && (
           <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.2 }}>
