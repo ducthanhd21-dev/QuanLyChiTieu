@@ -8,7 +8,7 @@ import {
   PlusOutlined, EditOutlined, DeleteOutlined,
   SearchOutlined, CalendarOutlined, TagOutlined,
   FileExcelOutlined, PaperClipOutlined,
-  RightOutlined, DownOutlined, WalletOutlined, CheckCircleOutlined,
+  RightOutlined, DownOutlined, CheckCircleOutlined,
   ClockCircleOutlined, ExclamationCircleOutlined,
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
@@ -212,15 +212,6 @@ const BillsPage = () => {
             userSelect: 'none',
           }}
         >
-          {/* Icon */}
-          <div style={{
-            width: 42, height: 42, borderRadius: 12, flexShrink: 0,
-            background: borderColor + '15',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-          }}>
-            <WalletOutlined style={{ fontSize: 20, color: borderColor }} />
-          </div>
-
           {/* Title + meta */}
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
@@ -273,13 +264,120 @@ const BillsPage = () => {
           <div style={{ background: '#fafafa', borderTop: '1px solid #f0f0f0' }}>
             {group.bills.map((bill, idx) => {
               const status = getBillStatus(bill);
-              const cfg = STATUS_CONFIG[status];
               const monthLabel = dayjs(bill.due_date).format('MM/YYYY');
+              const badgeColor = status === 'paid' ? '#52c41a' : status === 'overdue' ? '#ff4d4f' : '#faad14';
+              const badgeBg = status === 'paid' ? '#f6ffed' : status === 'overdue' ? '#fff2f0' : '#fffbe6';
+              const badgeBorder = status === 'paid' ? '#b7eb8f' : status === 'overdue' ? '#ffccc7' : '#ffe58f';
+
+              if (isMobile) {
+                return (
+                  <div
+                    key={bill.id}
+                    style={{
+                      padding: '12px 14px',
+                      borderBottom: idx < group.bills.length - 1 ? '1px solid #f0f0f0' : 'none',
+                      background: bill.is_paid ? '#f6ffed' : '#fff',
+                      transition: 'background 0.2s',
+                    }}
+                  >
+                    {/* Top row: checkbox + month pill + amount */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <Checkbox
+                        checked={!!bill.is_paid}
+                        onChange={() => handleTogglePaid(bill)}
+                        style={{ flexShrink: 0 }}
+                      />
+                      <div style={{
+                        background: badgeBg,
+                        border: `1px solid ${badgeBorder}`,
+                        borderRadius: 8,
+                        padding: '3px 10px',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 5,
+                        flexShrink: 0,
+                      }}>
+                        <span style={{ fontSize: 11, color: '#8c8c8c' }}>Tháng</span>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: badgeColor }}>
+                          {monthLabel}
+                        </span>
+                      </div>
+                      <Text strong style={{
+                        marginLeft: 'auto',
+                        color: bill.is_paid ? '#52c41a' : '#1890ff',
+                        fontSize: 15,
+                        whiteSpace: 'nowrap',
+                        textDecoration: bill.is_paid ? 'line-through' : 'none',
+                      }}>
+                        {formatCurrency(bill.amount)}
+                      </Text>
+                    </div>
+
+                    {/* Bottom row: due date + actions */}
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      marginTop: 8,
+                      paddingLeft: 26,
+                      gap: 8,
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
+                        <StatusIcon status={status} />
+                        <Text style={{ fontSize: 12, color: '#8c8c8c', whiteSpace: 'nowrap' }}>
+                          Hạn: {formatDate(bill.due_date)}
+                        </Text>
+                      </div>
+                      <Space size={4} style={{ flexShrink: 0 }}>
+                        {bill.receipt_url && (
+                          <Button
+                            type="text"
+                            size="small"
+                            icon={<PaperClipOutlined />}
+                            onClick={() => setPreviewImage(bill.receipt_url)}
+                            style={{ color: '#52c41a', padding: '2px 6px' }}
+                          />
+                        )}
+                        <Button
+                          type="text"
+                          size="small"
+                          icon={<EditOutlined />}
+                          onClick={() => handleEdit(bill)}
+                          style={{ color: '#1890ff', padding: '2px 6px' }}
+                        />
+                        <Popconfirm
+                          title="Xóa khoản này?"
+                          onConfirm={() => handleDelete(bill.id)}
+                          okText="Xóa"
+                          cancelText="Hủy"
+                          okButtonProps={{ danger: true }}
+                          placement="topRight"
+                        >
+                          <Button
+                            type="text"
+                            size="small"
+                            icon={<DeleteOutlined />}
+                            danger
+                            style={{ padding: '2px 6px' }}
+                          />
+                        </Popconfirm>
+                      </Space>
+                    </div>
+
+                    {bill.note && (
+                      <div style={{ paddingLeft: 26, marginTop: 4 }}>
+                        <Text type="secondary" style={{ fontSize: 11 }}>{bill.note}</Text>
+                      </div>
+                    )}
+                  </div>
+                );
+              }
+
               return (
                 <div
                   key={bill.id}
                   style={{
-                    padding: isMobile ? '12px 16px 12px 24px' : '12px 20px 12px 28px',
+                    padding: '12px 20px 12px 28px',
                     display: 'flex',
                     alignItems: 'center',
                     gap: 12,
@@ -288,17 +386,14 @@ const BillsPage = () => {
                     transition: 'background 0.2s',
                   }}
                 >
-                  {/* Checkbox */}
                   <Checkbox
                     checked={!!bill.is_paid}
                     onChange={() => handleTogglePaid(bill)}
                     style={{ flexShrink: 0 }}
                   />
-
-                  {/* Month badge */}
                   <div style={{
-                    background: status === 'paid' ? '#f6ffed' : status === 'overdue' ? '#fff2f0' : '#fffbe6',
-                    border: `1px solid ${status === 'paid' ? '#b7eb8f' : status === 'overdue' ? '#ffccc7' : '#ffe58f'}`,
+                    background: badgeBg,
+                    border: `1px solid ${badgeBorder}`,
                     borderRadius: 8,
                     padding: '4px 10px',
                     textAlign: 'center',
@@ -306,16 +401,14 @@ const BillsPage = () => {
                     minWidth: 64,
                   }}>
                     <div style={{ fontSize: 11, color: '#8c8c8c', lineHeight: 1 }}>Tháng</div>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: status === 'paid' ? '#52c41a' : status === 'overdue' ? '#ff4d4f' : '#faad14', lineHeight: 1.4 }}>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: badgeColor, lineHeight: 1.4 }}>
                       {monthLabel}
                     </div>
                   </div>
-
-                  {/* Info */}
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
                       <StatusIcon status={status} />
-                      <Text style={{ fontSize: 13, color: '#8c8c8c' }}>
+                      <Text style={{ fontSize: 13, color: '#8c8c8c', whiteSpace: 'nowrap' }}>
                         Hạn: {formatDate(bill.due_date)}
                       </Text>
                     </div>
@@ -323,8 +416,6 @@ const BillsPage = () => {
                       <Text type="secondary" style={{ fontSize: 11 }}>{bill.note}</Text>
                     )}
                   </div>
-
-                  {/* Amount */}
                   <Text strong style={{
                     color: bill.is_paid ? '#52c41a' : '#1890ff',
                     fontSize: 15,
@@ -333,8 +424,6 @@ const BillsPage = () => {
                   }}>
                     {formatCurrency(bill.amount)}
                   </Text>
-
-                  {/* Actions */}
                   <Space size={2} style={{ flexShrink: 0 }}>
                     {bill.receipt_url && (
                       <Tooltip title="Xem biên lai">
@@ -415,18 +504,24 @@ const BillsPage = () => {
           marginBottom: 14,
         }}>
           {[
-            { label: 'Tổng cộng', value: totalAll, color: '#1890ff', bg: '#e6f4ff' },
-            { label: 'Đã thanh toán', value: paidAll, color: '#52c41a', bg: '#f6ffed' },
-            { label: 'Còn lại', value: unpaidAll, color: '#ff4d4f', bg: '#fff2f0' },
+            { label: 'Tổng cộng', value: totalAll, color: '#1890ff', bg: '#e6f4ff', fullOnMobile: true },
+            { label: 'Đã thanh toán', value: paidAll, color: '#52c41a', bg: '#f6ffed', fullOnMobile: false },
+            { label: 'Còn lại', value: unpaidAll, color: '#ff4d4f', bg: '#fff2f0', fullOnMobile: false },
           ].map((stat) => (
             <div key={stat.label} style={{
               background: stat.bg,
               borderRadius: 12,
-              padding: '12px 16px',
+              padding: isMobile && stat.fullOnMobile ? '12px 16px' : '12px 16px',
               border: `1px solid ${stat.color}30`,
+              gridColumn: isMobile && stat.fullOnMobile ? '1 / -1' : 'auto',
+              display: isMobile && stat.fullOnMobile ? 'flex' : 'block',
+              alignItems: 'center',
+              justifyContent: 'space-between',
             }}>
-              <Text style={{ fontSize: 11, color: '#8c8c8c', display: 'block' }}>{stat.label}</Text>
-              <Text strong style={{ fontSize: isMobile ? 14 : 16, color: stat.color }}>{formatCurrency(stat.value)}</Text>
+              <Text style={{ fontSize: 12, color: '#8c8c8c', display: 'block' }}>{stat.label}</Text>
+              <Text strong style={{ fontSize: isMobile ? (stat.fullOnMobile ? 17 : 15) : 16, color: stat.color }}>
+                {formatCurrency(stat.value)}
+              </Text>
             </div>
           ))}
         </div>
