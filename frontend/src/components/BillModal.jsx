@@ -166,40 +166,34 @@ const BillModal = ({ open, bill, defaultMonth, onClose, onSuccess }) => {
 
         {/* Duration months - only when adding new bill */}
         {!isEditing && (
-          <Form.Item
-            name="duration_months"
-            label={
-              <span>
-                Thời hạn hóa đơn&nbsp;
-                <Tooltip title="Hóa đơn sẽ tự động được tạo cho các tháng tiếp theo. VD: chọn 3 tháng → tạo hóa đơn cho tháng này + 2 tháng sau.">
-                  <InfoCircleOutlined style={{ color: '#8c8c8c', cursor: 'pointer' }} />
-                </Tooltip>
-              </span>
-            }
-          >
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 12,
-              background: '#f0f7ff',
-              padding: '10px 14px',
-              borderRadius: 8,
-              border: '1px solid #bae0ff',
-            }}>
+          <div style={{
+            background: '#f0f7ff',
+            padding: '12px 14px',
+            borderRadius: 8,
+            border: '1px solid #bae0ff',
+            marginBottom: 16,
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
               <CalendarOutlined style={{ color: '#1890ff', fontSize: 16 }} />
-              <div style={{ flex: 1 }}>
-                <div style={{ fontWeight: 500, marginBottom: 4 }}>Số tháng áp dụng</div>
-                <InputNumber
-                  min={1}
-                  max={36}
-                  defaultValue={1}
-                  style={{ width: '100%' }}
-                  addonAfter="tháng"
-                  placeholder="1"
-                />
-              </div>
+              <span style={{ fontWeight: 500 }}>Thời hạn hóa đơn (số tháng)</span>
+              <Tooltip title="Hóa đơn sẽ tự động được tạo cho các tháng tiếp theo. VD: chọn 3 tháng → tạo hóa đơn cho tháng này + 2 tháng sau.">
+                <InfoCircleOutlined style={{ color: '#8c8c8c', cursor: 'pointer' }} />
+              </Tooltip>
             </div>
-          </Form.Item>
+            <Form.Item
+              name="duration_months"
+              noStyle
+              initialValue={1}
+            >
+              <InputNumber
+                min={1}
+                max={36}
+                style={{ width: '100%' }}
+                addonAfter="tháng"
+                placeholder="1"
+              />
+            </Form.Item>
+          </div>
         )}
 
         {/* Receipt Attachment */}

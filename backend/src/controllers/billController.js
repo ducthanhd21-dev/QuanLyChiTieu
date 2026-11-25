@@ -73,7 +73,7 @@ const BillController = {
       const userId = req.user.id;
       const { title, amount, due_date, category, note, receipt_url, duration_months } = req.body;
 
-      const baseDate = new Date(due_date);
+      const [yearStr, monthStr, dayStr] = due_date.split('-').map(Number);
       const months = parseInt(duration_months) || 1;
 
       // Create bill for the base month
@@ -90,9 +90,16 @@ const BillController = {
 
       // Create bills for subsequent months if duration > 1
       for (let i = 1; i < months; i++) {
-        const futureDate = new Date(baseDate);
-        futureDate.setMonth(futureDate.getMonth() + i);
-        const futureDateStr = futureDate.toISOString().split('T')[0];
+        // Compute future year and month
+        const targetDate = new Date(yearStr, monthStr - 1 + i, 1);
+        const fYear = targetDate.getFullYear();
+        const fMonth = targetDate.getMonth() + 1; // 1-12
+        // Get maximum days in target month
+        const maxDaysInTargetMonth = new Date(fYear, fMonth, 0).getDate();
+        const fDay = Math.min(dayStr, maxDaysInTargetMonth);
+
+        const pad = (n) => String(n).padStart(2, '0');
+        const futureDateStr = `${fYear}-${pad(fMonth)}-${pad(fDay)}`;
 
         await BillModel.create({
           userId,
