@@ -61,30 +61,26 @@ const StatisticsPage = () => {
     fetchStats();
   }, [fetchStats]);
 
-  // Combine monthly bills and income data
-  const monthMap = new Map();
-
+  // Build 7-month window centered on selectedMonth: 3 months before, selectedMonth, 3 months after
+  const billByMonth = new Map();
   monthlyData.forEach((d) => {
-    monthMap.set(d.month, {
-      month: d.month,
-      totalAmount: parseFloat(d.total_amount) || 0,
-      totalIncome: 0,
-    });
+    billByMonth.set(d.month, parseFloat(d.total_amount) || 0);
   });
 
+  const incomeByMonth = new Map();
   monthlyIncome.forEach((d) => {
-    if (monthMap.has(d.month)) {
-      monthMap.get(d.month).totalIncome = parseFloat(d.total_income) || 0;
-    } else {
-      monthMap.set(d.month, {
-        month: d.month,
-        totalAmount: 0,
-        totalIncome: parseFloat(d.total_income) || 0,
-      });
-    }
+    incomeByMonth.set(d.month, parseFloat(d.total_income) || 0);
   });
 
-  const chartMonths = Array.from(monthMap.values()).sort((a, b) => a.month.localeCompare(b.month));
+  const chartMonths = [];
+  for (let offset = -3; offset <= 3; offset++) {
+    const m = selectedMonth.add(offset, 'month').format('YYYY-MM');
+    chartMonths.push({
+      month: m,
+      totalAmount: billByMonth.get(m) || 0,
+      totalIncome: incomeByMonth.get(m) || 0,
+    });
+  }
 
   // Bar chart: monthly bills vs income with rounded corners
   const barChartData = {

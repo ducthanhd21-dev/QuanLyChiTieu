@@ -145,7 +145,7 @@ const BillModel = {
     return rows[0];
   },
 
-  // Statistics: monthly totals (last 12 months)
+  // Statistics: monthly totals
   async getMonthlyStats(userId) {
     const { rows } = await pool.query(
       `SELECT
@@ -157,8 +157,7 @@ const BillModel = {
        FROM bills
        WHERE user_id = $1
        GROUP BY TO_CHAR(due_date, 'YYYY-MM')
-       ORDER BY month DESC
-       LIMIT 12`,
+       ORDER BY month ASC`,
       [userId]
     );
     return rows;
