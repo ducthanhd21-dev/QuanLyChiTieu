@@ -71,25 +71,50 @@ const BillController = {
   async create(req, res) {
     try {
       const userId = req.user.id;
-      const { title, amount, due_date, category, note, is_recurring, receipt_url } = req.body;
+      const { title, amount, due_date, category, note, receipt_url, duration_months } = req.body;
 
-      const billId = await BillModel.create({
+      const baseDate = new Date(due_date);
+      const months = parseInt(duration_months) || 1;
+
+      // Create bill for the base month
+      const firstBillId = await BillModel.create({
         userId,
         title,
         amount,
         due_date,
         category,
         note,
-        is_recurring: !!is_recurring,
+        is_recurring: false,
         receipt_url: receipt_url || null,
       });
 
-      const bill = await BillModel.findById(billId, userId);
+      // Create bills for subsequent months if duration > 1
+      for (let i = 1; i < months; i++) {
+        const futureDate = new Date(baseDate);
+        futureDate.setMonth(futureDate.getMonth() + i);
+        const futureDateStr = futureDate.toISOString().split('T')[0];
+
+        await BillModel.create({
+          userId,
+          title,
+          amount,
+          due_date: futureDateStr,
+          category,
+          note,
+          is_recurring: false,
+          receipt_url: receipt_url || null,
+        });
+      }
+
+      const bill = await BillModel.findById(firstBillId, userId);
 
       return res.status(201).json({
         success: true,
-        message: 'Tạo khoản thanh toán thành công!',
+        message: months > 1
+          ? `Tạo thành công ${months} khoản thanh toán trong ${months} tháng!`
+          : 'Tạo khoản thanh toán thành công!',
         data: bill,
+        created_count: months,
       });
     } catch (error) {
       console.error('Create bill error:', error);

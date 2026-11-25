@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import {
   Modal, Form, Input, InputNumber, DatePicker, Select, Button,
-  Switch, Upload, message, notification, Image, Typography, Space,
+  Upload, message, notification, Image, Typography, Tooltip,
 } from 'antd';
 import {
-  UploadOutlined, SyncOutlined, DeleteOutlined, PaperClipOutlined,
+  UploadOutlined, DeleteOutlined, CalendarOutlined, InfoCircleOutlined,
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { billService } from '../services';
@@ -29,7 +29,6 @@ const BillModal = ({ open, bill, defaultMonth, onClose, onSuccess }) => {
           due_date: dayjs(bill.due_date),
           category: bill.category || 'Hóa đơn',
           note: bill.note || '',
-          is_recurring: !!bill.is_recurring,
         });
         setReceiptUrl(bill.receipt_url || null);
       } else {
@@ -38,7 +37,7 @@ const BillModal = ({ open, bill, defaultMonth, onClose, onSuccess }) => {
           form.setFieldValue('due_date', defaultMonth.startOf('month'));
         }
         form.setFieldValue('category', 'Hóa đơn');
-        form.setFieldValue('is_recurring', false);
+        form.setFieldValue('duration_months', 1);
         setReceiptUrl(null);
       }
     }
@@ -74,7 +73,7 @@ const BillModal = ({ open, bill, defaultMonth, onClose, onSuccess }) => {
         due_date: values.due_date.format('YYYY-MM-DD'),
         category: values.category || 'Hóa đơn',
         note: values.note?.trim() || '',
-        is_recurring: !!values.is_recurring,
+        is_recurring: false,
         receipt_url: receiptUrl,
       };
 
@@ -82,8 +81,12 @@ const BillModal = ({ open, bill, defaultMonth, onClose, onSuccess }) => {
         await billService.update(bill.id, payload);
         notification.success({ message: 'Cập nhật thành công!' });
       } else {
-        await billService.create(payload);
-        notification.success({ message: 'Thêm khoản thanh toán thành công!' });
+        const duration = values.duration_months || 1;
+        await billService.create({ ...payload, duration_months: duration });
+        const msg = duration > 1
+          ? `Đã thêm hóa đơn cho ${duration} tháng liên tiếp!`
+          : 'Thêm khoản thanh toán thành công!';
+        notification.success({ message: msg });
       }
       onSuccess();
     } catch (err) {
@@ -161,33 +164,43 @@ const BillModal = ({ open, bill, defaultMonth, onClose, onSuccess }) => {
           </Form.Item>
         </div>
 
-        {/* Recurring switch */}
-        <Form.Item
-          name="is_recurring"
-          valuePropName="checked"
-          style={{ marginBottom: 12 }}
-        >
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            background: '#fafafa',
-            padding: '10px 14px',
-            borderRadius: 8,
-            border: '1px solid #f0f0f0',
-          }}>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 500 }}>
-                <SyncOutlined style={{ color: '#1890ff' }} />
-                <span>Khoản thanh toán định kỳ hàng tháng</span>
+        {/* Duration months - only when adding new bill */}
+        {!isEditing && (
+          <Form.Item
+            name="duration_months"
+            label={
+              <span>
+                Thời hạn hóa đơn&nbsp;
+                <Tooltip title="Hóa đơn sẽ tự động được tạo cho các tháng tiếp theo. VD: chọn 3 tháng → tạo hóa đơn cho tháng này + 2 tháng sau.">
+                  <InfoCircleOutlined style={{ color: '#8c8c8c', cursor: 'pointer' }} />
+                </Tooltip>
+              </span>
+            }
+          >
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 12,
+              background: '#f0f7ff',
+              padding: '10px 14px',
+              borderRadius: 8,
+              border: '1px solid #bae0ff',
+            }}>
+              <CalendarOutlined style={{ color: '#1890ff', fontSize: 16 }} />
+              <div style={{ flex: 1 }}>
+                <div style={{ fontWeight: 500, marginBottom: 4 }}>Số tháng áp dụng</div>
+                <InputNumber
+                  min={1}
+                  max={36}
+                  defaultValue={1}
+                  style={{ width: '100%' }}
+                  addonAfter="tháng"
+                  placeholder="1"
+                />
               </div>
-              <Text type="secondary" style={{ fontSize: 11 }}>
-                Tự động đánh dấu để sao chép nhanh sang các tháng tiếp theo
-              </Text>
             </div>
-            <Switch />
-          </div>
-        </Form.Item>
+          </Form.Item>
+        )}
 
         {/* Receipt Attachment */}
         <Form.Item label="Ảnh biên lai / Bill chuyển khoản (Tùy chọn)">
