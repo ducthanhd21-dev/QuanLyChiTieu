@@ -21,6 +21,26 @@ const { Title, Text } = Typography;
 const { Option } = Select;
 const { useBreakpoint } = Grid;
 
+// ── Helper: get most frequent day of month (1-31) in a group of bills ───────
+const getMostFrequentDay = (bills) => {
+  if (!bills || bills.length === 0) return 32;
+  const counts = {};
+  bills.forEach((b) => {
+    const day = dayjs(b.due_date).date();
+    counts[day] = (counts[day] || 0) + 1;
+  });
+  let bestDay = 32;
+  let maxCount = -1;
+  Object.entries(counts).forEach(([dayStr, count]) => {
+    const day = Number(dayStr);
+    if (count > maxCount || (count === maxCount && day < bestDay)) {
+      maxCount = count;
+      bestDay = day;
+    }
+  });
+  return bestDay;
+};
+
 // ── Helper: group bills by title ────────────────────────────────────────────
 const groupBillsByTitle = (bills) => {
   const map = {};
@@ -35,11 +55,25 @@ const groupBillsByTitle = (bills) => {
     }
     map[key].bills.push(bill);
   });
-  // Sort each group by due_date
+  // Sort each group's bills chronologically by due_date
   Object.values(map).forEach((g) => {
     g.bills.sort((a, b) => new Date(a.due_date) - new Date(b.due_date));
   });
-  return Object.values(map).sort((a, b) => a.title.localeCompare(b.title, 'vi'));
+  return Object.values(map).sort((a, b) => {
+    const aAllPaid = a.bills.every((bill) => !!bill.is_paid);
+    const bAllPaid = b.bills.every((bill) => !!bill.is_paid);
+    if (aAllPaid !== bAllPaid) {
+      return aAllPaid ? 1 : -1;
+    }
+
+    const aDay = getMostFrequentDay(a.bills);
+    const bDay = getMostFrequentDay(b.bills);
+    if (aDay !== bDay) {
+      return aDay - bDay;
+    }
+
+    return a.title.localeCompare(b.title, 'vi');
+  });
 };
 
 // ── Status icon helper ───────────────────────────────────────────────────────
