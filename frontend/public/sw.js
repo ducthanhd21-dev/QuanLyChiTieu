@@ -1,6 +1,6 @@
-const CACHE_NAME = 'billtrack-v2';
+const CACHE_NAME = 'hoadon-v3';
 const urlsToCache = [
-  '/favicon.svg',
+  '/icon-192.png',
   '/manifest.json'
 ];
 
