@@ -1,13 +1,15 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   Card, Button, Input, Select, DatePicker, Space,
   Tag, Checkbox, Popconfirm, notification, Typography,
-  Empty, Tooltip, Grid, Table, Modal, Image,
+  Empty, Tooltip, Grid, Modal, Image, Progress, Badge,
 } from 'antd';
 import {
   PlusOutlined, EditOutlined, DeleteOutlined,
   SearchOutlined, CalendarOutlined, TagOutlined,
-  FileExcelOutlined, PaperClipOutlined, SyncOutlined,
+  FileExcelOutlined, PaperClipOutlined,
+  RightOutlined, DownOutlined, WalletOutlined, CheckCircleOutlined,
+  ClockCircleOutlined, ExclamationCircleOutlined,
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { billService } from '../services';
@@ -18,6 +20,34 @@ import BillModal from '../components/BillModal';
 const { Title, Text } = Typography;
 const { Option } = Select;
 const { useBreakpoint } = Grid;
+
+// ── Helper: group bills by title ────────────────────────────────────────────
+const groupBillsByTitle = (bills) => {
+  const map = {};
+  bills.forEach((bill) => {
+    const key = bill.title.trim().toLowerCase();
+    if (!map[key]) {
+      map[key] = {
+        title: bill.title,
+        category: bill.category,
+        bills: [],
+      };
+    }
+    map[key].bills.push(bill);
+  });
+  // Sort each group by due_date
+  Object.values(map).forEach((g) => {
+    g.bills.sort((a, b) => new Date(a.due_date) - new Date(b.due_date));
+  });
+  return Object.values(map).sort((a, b) => a.title.localeCompare(b.title, 'vi'));
+};
+
+// ── Status icon helper ───────────────────────────────────────────────────────
+const StatusIcon = ({ status }) => {
+  if (status === 'paid') return <CheckCircleOutlined style={{ color: '#52c41a' }} />;
+  if (status === 'overdue') return <ExclamationCircleOutlined style={{ color: '#ff4d4f' }} />;
+  return <ClockCircleOutlined style={{ color: '#faad14' }} />;
+};
 
 const BillsPage = () => {
   const screens = useBreakpoint();
@@ -32,20 +62,20 @@ const BillsPage = () => {
   const [billModalOpen, setBillModalOpen] = useState(false);
   const [editingBill, setEditingBill] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
+  const [expandedGroups, setExpandedGroups] = useState({});
 
   const fetchBills = useCallback(async () => {
     setLoading(true);
     try {
-      const params = {};
-      if (selectedMonth) params.month = selectedMonth.format('YYYY-MM');
-      const res = await billService.getAll(params);
+      // Always fetch ALL bills (no month filter) for the grouped view
+      const res = await billService.getAll({});
       setBills(res.data.data);
     } catch {
       notification.error({ message: 'Không thể tải danh sách khoản thanh toán.' });
     } finally {
       setLoading(false);
     }
-  }, [selectedMonth]);
+  }, []);
 
   useEffect(() => { fetchBills(); }, [fetchBills]);
 
@@ -83,219 +113,239 @@ const BillsPage = () => {
     fetchBills();
   };
 
-  // Export to Excel
   const handleExportExcel = () => {
-    if (filteredBills.length === 0) {
+    if (bills.length === 0) {
       notification.warning({ message: 'Không có dữ liệu hóa đơn để xuất file.' });
       return;
     }
-    const monthStr = selectedMonth ? selectedMonth.format('MM/YYYY') : 'Tất cả';
-    exportBillsToExcel(filteredBills, monthStr);
+    exportBillsToExcel(bills, 'Tất cả');
     notification.success({ message: 'Đã xuất file Excel thành công!' });
   };
 
-  // Filter
-  const filteredBills = bills.filter((bill) => {
-    const matchSearch = !search || bill.title.toLowerCase().includes(search.toLowerCase());
-    const matchCategory = !filterCategory || bill.category === filterCategory;
-    const matchStatus = !filterStatus || getBillStatus(bill) === filterStatus;
-    return matchSearch && matchCategory && matchStatus;
-  });
+  const toggleGroup = (key) => {
+    setExpandedGroups((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
 
-  // ── MOBILE: Card layout ────────────────────────────────────────────────────
-  const MobileBillCard = ({ bill }) => {
-    const status = getBillStatus(bill);
-    const cfg = STATUS_CONFIG[status];
+  // Filter & group
+  const groupedBills = useMemo(() => {
+    const filtered = bills.filter((bill) => {
+      const matchSearch = !search || bill.title.toLowerCase().includes(search.toLowerCase());
+      const matchCategory = !filterCategory || bill.category === filterCategory;
+      const matchStatus = !filterStatus || getBillStatus(bill) === filterStatus;
+      const matchMonth = !selectedMonth || dayjs(bill.due_date).format('YYYY-MM') === selectedMonth.format('YYYY-MM');
+      return matchSearch && matchCategory && matchStatus && matchMonth;
+    });
+    return groupBillsByTitle(filtered);
+  }, [bills, search, filterCategory, filterStatus, selectedMonth]);
+
+  // ── Group Card Component ──────────────────────────────────────────────────
+  const BillGroupCard = ({ group }) => {
+    const key = group.title.trim().toLowerCase();
+    const isExpanded = !!expandedGroups[key];
+    const totalAmount = group.bills.reduce((s, b) => s + parseFloat(b.amount), 0);
+    const paidCount = group.bills.filter((b) => b.is_paid).length;
+    const overdueCount = group.bills.filter((b) => getBillStatus(b) === 'overdue').length;
+    const totalCount = group.bills.length;
+    const paidPercent = totalCount > 0 ? Math.round((paidCount / totalCount) * 100) : 0;
+    const unpaidAmount = group.bills
+      .filter((b) => !b.is_paid)
+      .reduce((s, b) => s + parseFloat(b.amount), 0);
+
+    // Determine group status color
+    let borderColor = '#52c41a';
+    if (overdueCount > 0) borderColor = '#ff4d4f';
+    else if (paidCount < totalCount) borderColor = '#faad14';
+
     return (
       <div style={{
         background: '#fff',
-        borderRadius: 12,
-        padding: '14px 16px',
-        marginBottom: 10,
-        boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
-        borderLeft: `4px solid ${status === 'paid' ? '#52c41a' : status === 'overdue' ? '#ff4d4f' : '#faad14'}`,
-        opacity: bill.is_paid ? 0.8 : 1,
+        borderRadius: 16,
+        marginBottom: 12,
+        boxShadow: '0 2px 12px rgba(0,0,0,0.07)',
+        overflow: 'hidden',
+        border: '1px solid #f0f0f0',
       }}>
-        {/* Row 1: checkbox + title + recurring + status */}
-        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 8 }}>
-          <Checkbox
-            checked={!!bill.is_paid}
-            onChange={() => handleTogglePaid(bill)}
-            style={{ marginTop: 2, flexShrink: 0 }}
-          />
+        {/* Group Header — always visible */}
+        <div
+          onClick={() => toggleGroup(key)}
+          style={{
+            padding: isMobile ? '14px 16px' : '16px 20px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 14,
+            borderLeft: `5px solid ${borderColor}`,
+            userSelect: 'none',
+          }}
+        >
+          {/* Icon */}
+          <div style={{
+            width: 42, height: 42, borderRadius: 12, flexShrink: 0,
+            background: borderColor + '15',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <WalletOutlined style={{ fontSize: 20, color: borderColor }} />
+          </div>
+
+          {/* Title + meta */}
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-              <Text
-                strong
-                style={{
-                  textDecoration: bill.is_paid ? 'line-through' : 'none',
-                  color: bill.is_paid ? '#aaa' : '#262626',
-                  fontSize: 15,
-                  lineHeight: 1.4,
-                }}
-              >
-                {bill.title}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+              <Text strong style={{ fontSize: isMobile ? 15 : 16, color: '#1a1a1a' }}>
+                {group.title}
               </Text>
-              {bill.is_recurring && (
-                <Tag color="cyan" style={{ margin: 0, fontSize: 10, padding: '0 4px' }}>
-                  <SyncOutlined /> Định kỳ
+              {group.category && (
+                <Tag color="blue" style={{ margin: 0, fontSize: 11 }}>{group.category}</Tag>
+              )}
+            </div>
+            <div style={{ marginTop: 4, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+              <Text style={{ fontSize: 12, color: '#8c8c8c' }}>
+                {totalCount} tháng · {paidCount} đã đóng
+              </Text>
+              {overdueCount > 0 && (
+                <Tag color="red" style={{ margin: 0, fontSize: 11 }}>
+                  <ExclamationCircleOutlined /> {overdueCount} quá hạn
                 </Tag>
               )}
             </div>
-          </div>
-          <Tag color={cfg.color} style={{ margin: 0, flexShrink: 0 }}>{cfg.label}</Tag>
-        </div>
-
-        {/* Row 2: category + date + receipt */}
-        <div style={{ display: 'flex', gap: 12, marginLeft: 28, marginBottom: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-          {bill.category && (
-            <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#8c8c8c', fontSize: 12 }}>
-              <TagOutlined style={{ fontSize: 11 }} />
-              {bill.category}
-            </span>
-          )}
-          <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#8c8c8c', fontSize: 12 }}>
-            <CalendarOutlined style={{ fontSize: 11 }} />
-            {formatDate(bill.due_date)}
-          </span>
-          {bill.receipt_url && (
-            <Button
-              type="link"
+            {/* Progress bar */}
+            <Progress
+              percent={paidPercent}
               size="small"
-              icon={<PaperClipOutlined />}
-              onClick={() => setPreviewImage(bill.receipt_url)}
-              style={{ padding: 0, height: 'auto', fontSize: 12, color: '#52c41a' }}
-            >
-              Biên lai
-            </Button>
-          )}
-        </div>
-
-        {/* Row 3: amount + actions */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginLeft: 28 }}>
-          <Text strong style={{ color: '#1890ff', fontSize: 16 }}>
-            {formatCurrency(bill.amount)}
-          </Text>
-          <Space size={4}>
-            <Button
-              type="text"
-              icon={<EditOutlined />}
-              onClick={() => handleEdit(bill)}
-              style={{ color: '#1890ff', padding: '4px 8px' }}
-              size="small"
+              strokeColor={borderColor}
+              trailColor="#f0f0f0"
+              showInfo={false}
+              style={{ marginTop: 6, marginBottom: 0 }}
             />
-            <Popconfirm
-              title="Xóa khoản này?"
-              onConfirm={() => handleDelete(bill.id)}
-              okText="Xóa"
-              cancelText="Hủy"
-              okButtonProps={{ danger: true }}
-              placement="topRight"
-            >
-              <Button
-                type="text"
-                icon={<DeleteOutlined />}
-                danger
-                size="small"
-                style={{ padding: '4px 8px' }}
-              />
-            </Popconfirm>
-          </Space>
+          </div>
+
+          {/* Amount + chevron */}
+          <div style={{ textAlign: 'right', flexShrink: 0 }}>
+            <div style={{ fontWeight: 700, fontSize: isMobile ? 15 : 16, color: '#1890ff' }}>
+              {formatCurrency(totalAmount)}
+            </div>
+            {unpaidAmount > 0 && (
+              <div style={{ fontSize: 11, color: '#ff4d4f', marginTop: 2 }}>
+                Còn: {formatCurrency(unpaidAmount)}
+              </div>
+            )}
+            <div style={{ marginTop: 6, color: '#bfbfbf' }}>
+              {isExpanded ? <DownOutlined /> : <RightOutlined />}
+            </div>
+          </div>
         </div>
+
+        {/* Detail list — expanded */}
+        {isExpanded && (
+          <div style={{ background: '#fafafa', borderTop: '1px solid #f0f0f0' }}>
+            {group.bills.map((bill, idx) => {
+              const status = getBillStatus(bill);
+              const cfg = STATUS_CONFIG[status];
+              const monthLabel = dayjs(bill.due_date).format('MM/YYYY');
+              return (
+                <div
+                  key={bill.id}
+                  style={{
+                    padding: isMobile ? '12px 16px 12px 24px' : '12px 20px 12px 28px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 12,
+                    borderBottom: idx < group.bills.length - 1 ? '1px solid #f0f0f0' : 'none',
+                    background: bill.is_paid ? '#f6ffed' : '#fff',
+                    transition: 'background 0.2s',
+                  }}
+                >
+                  {/* Checkbox */}
+                  <Checkbox
+                    checked={!!bill.is_paid}
+                    onChange={() => handleTogglePaid(bill)}
+                    style={{ flexShrink: 0 }}
+                  />
+
+                  {/* Month badge */}
+                  <div style={{
+                    background: status === 'paid' ? '#f6ffed' : status === 'overdue' ? '#fff2f0' : '#fffbe6',
+                    border: `1px solid ${status === 'paid' ? '#b7eb8f' : status === 'overdue' ? '#ffccc7' : '#ffe58f'}`,
+                    borderRadius: 8,
+                    padding: '4px 10px',
+                    textAlign: 'center',
+                    flexShrink: 0,
+                    minWidth: 64,
+                  }}>
+                    <div style={{ fontSize: 11, color: '#8c8c8c', lineHeight: 1 }}>Tháng</div>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: status === 'paid' ? '#52c41a' : status === 'overdue' ? '#ff4d4f' : '#faad14', lineHeight: 1.4 }}>
+                      {monthLabel}
+                    </div>
+                  </div>
+
+                  {/* Info */}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                      <StatusIcon status={status} />
+                      <Text style={{ fontSize: 13, color: '#8c8c8c' }}>
+                        Hạn: {formatDate(bill.due_date)}
+                      </Text>
+                    </div>
+                    {bill.note && (
+                      <Text type="secondary" style={{ fontSize: 11 }}>{bill.note}</Text>
+                    )}
+                  </div>
+
+                  {/* Amount */}
+                  <Text strong style={{
+                    color: bill.is_paid ? '#52c41a' : '#1890ff',
+                    fontSize: 15,
+                    flexShrink: 0,
+                    textDecoration: bill.is_paid ? 'line-through' : 'none',
+                  }}>
+                    {formatCurrency(bill.amount)}
+                  </Text>
+
+                  {/* Actions */}
+                  <Space size={2} style={{ flexShrink: 0 }}>
+                    {bill.receipt_url && (
+                      <Tooltip title="Xem biên lai">
+                        <Button
+                          type="text"
+                          size="small"
+                          icon={<PaperClipOutlined />}
+                          onClick={() => setPreviewImage(bill.receipt_url)}
+                          style={{ color: '#52c41a' }}
+                        />
+                      </Tooltip>
+                    )}
+                    <Tooltip title="Chỉnh sửa">
+                      <Button
+                        type="text"
+                        size="small"
+                        icon={<EditOutlined />}
+                        onClick={() => handleEdit(bill)}
+                        style={{ color: '#1890ff' }}
+                      />
+                    </Tooltip>
+                    <Popconfirm
+                      title="Xóa khoản này?"
+                      onConfirm={() => handleDelete(bill.id)}
+                      okText="Xóa"
+                      cancelText="Hủy"
+                      okButtonProps={{ danger: true }}
+                      placement="topRight"
+                    >
+                      <Button type="text" size="small" icon={<DeleteOutlined />} danger />
+                    </Popconfirm>
+                  </Space>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     );
   };
 
-  // ── DESKTOP: Table layout ─────────────────────────────────────────────────
-  const columns = [
-    {
-      title: '',
-      key: 'checkbox',
-      width: 40,
-      render: (_, bill) => (
-        <Checkbox checked={!!bill.is_paid} onChange={() => handleTogglePaid(bill)} />
-      ),
-    },
-    {
-      title: 'Tên khoản',
-      key: 'title',
-      render: (_, bill) => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span style={{ textDecoration: bill.is_paid ? 'line-through' : 'none', color: bill.is_paid ? '#bfbfbf' : '#262626' }}>
-            {bill.title}
-          </span>
-          {bill.is_recurring && (
-            <Tag color="cyan" style={{ fontSize: 10, margin: 0 }}>
-              <SyncOutlined /> Định kỳ
-            </Tag>
-          )}
-        </div>
-      ),
-    },
-    {
-      title: 'Danh mục',
-      dataIndex: 'category',
-      key: 'category',
-      render: (cat) => <Tag color="blue">{cat || 'Hóa đơn'}</Tag>,
-    },
-    {
-      title: 'Ngày đến hạn',
-      dataIndex: 'due_date',
-      key: 'due_date',
-      render: (d) => formatDate(d),
-    },
-    {
-      title: 'Số tiền',
-      dataIndex: 'amount',
-      key: 'amount',
-      render: (amt) => <span style={{ fontWeight: 600, color: '#1890ff' }}>{formatCurrency(amt)}</span>,
-    },
-    {
-      title: 'Biên lai',
-      key: 'receipt',
-      render: (_, bill) => bill.receipt_url ? (
-        <Button
-          type="link"
-          size="small"
-          icon={<PaperClipOutlined />}
-          onClick={() => setPreviewImage(bill.receipt_url)}
-          style={{ color: '#52c41a', padding: 0 }}
-        >
-          Xem ảnh
-        </Button>
-      ) : <Text type="secondary" style={{ fontSize: 12 }}>—</Text>,
-    },
-    {
-      title: 'Trạng thái',
-      key: 'status',
-      render: (_, bill) => {
-        const status = getBillStatus(bill);
-        const cfg = STATUS_CONFIG[status];
-        return <Tag color={cfg.color}>{cfg.label}</Tag>;
-      },
-    },
-    {
-      title: 'Thao tác',
-      key: 'actions',
-      render: (_, bill) => (
-        <Space>
-          <Tooltip title="Chỉnh sửa">
-            <Button type="text" icon={<EditOutlined />} onClick={() => handleEdit(bill)} style={{ color: '#1890ff' }} />
-          </Tooltip>
-          <Popconfirm
-            title="Xóa khoản thanh toán?"
-            description="Bạn có chắc muốn xóa khoản này không?"
-            onConfirm={() => handleDelete(bill.id)}
-            okText="Xóa"
-            cancelText="Hủy"
-            okButtonProps={{ danger: true }}
-          >
-            <Button type="text" icon={<DeleteOutlined />} danger />
-          </Popconfirm>
-        </Space>
-      ),
-    },
-  ];
+  // ── Summary stats ─────────────────────────────────────────────────────────
+  const totalAll = bills.reduce((s, b) => s + parseFloat(b.amount), 0);
+  const paidAll = bills.filter((b) => b.is_paid).reduce((s, b) => s + parseFloat(b.amount), 0);
+  const unpaidAll = totalAll - paidAll;
 
   return (
     <div>
@@ -322,10 +372,35 @@ const BillsPage = () => {
         </Space>
       </div>
 
+      {/* Overview stats */}
+      {bills.length > 0 && (
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: isMobile ? '1fr 1fr' : 'repeat(3, 1fr)',
+          gap: 10,
+          marginBottom: 14,
+        }}>
+          {[
+            { label: 'Tổng cộng', value: totalAll, color: '#1890ff', bg: '#e6f4ff' },
+            { label: 'Đã thanh toán', value: paidAll, color: '#52c41a', bg: '#f6ffed' },
+            { label: 'Còn lại', value: unpaidAll, color: '#ff4d4f', bg: '#fff2f0' },
+          ].map((stat) => (
+            <div key={stat.label} style={{
+              background: stat.bg,
+              borderRadius: 12,
+              padding: '12px 16px',
+              border: `1px solid ${stat.color}30`,
+            }}>
+              <Text style={{ fontSize: 11, color: '#8c8c8c', display: 'block' }}>{stat.label}</Text>
+              <Text strong style={{ fontSize: isMobile ? 14 : 16, color: stat.color }}>{formatCurrency(stat.value)}</Text>
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* Filters */}
-      <Card style={{ marginBottom: 12, borderRadius: 12 }} bodyStyle={{ padding: '12px 16px' }}>
+      <Card style={{ marginBottom: 14, borderRadius: 12 }} bodyStyle={{ padding: '12px 16px' }}>
         {isMobile ? (
-          // Mobile: stacked filters
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             <Input
               placeholder="Tìm kiếm tên khoản..."
@@ -368,7 +443,6 @@ const BillsPage = () => {
             </Select>
           </div>
         ) : (
-          // Desktop: horizontal filters
           <Space wrap>
             <Input
               placeholder="Tìm kiếm tên khoản..."
@@ -412,54 +486,40 @@ const BillsPage = () => {
         )}
       </Card>
 
-      {/* Summary count */}
-      {filteredBills.length > 0 && (
-        <Text type="secondary" style={{ display: 'block', marginBottom: 8, fontSize: 12 }}>
-          {filteredBills.length} khoản · {filteredBills.filter(b => b.is_paid).length} đã đóng · {filteredBills.filter(b => b.is_recurring).length} định kỳ
+      {/* Summary */}
+      {groupedBills.length > 0 && (
+        <Text type="secondary" style={{ display: 'block', marginBottom: 10, fontSize: 12 }}>
+          {groupedBills.length} loại khoản · {bills.filter(b => b.is_paid).length}/{bills.length} đã đóng
         </Text>
       )}
 
-      {/* Content */}
-      {isMobile ? (
-        // Mobile: Card list
-        <div>
-          {loading ? (
-            <div style={{ textAlign: 'center', padding: 48, color: '#8c8c8c' }}>Đang tải...</div>
-          ) : filteredBills.length === 0 ? (
-            <Empty
-              description="Chưa có khoản thanh toán nào"
-              style={{ padding: '48px 24px', background: '#fff', borderRadius: 12 }}
-            >
-              <Button type="primary" icon={<PlusOutlined />} onClick={() => setBillModalOpen(true)}>
-                Thêm khoản đầu tiên
-              </Button>
-            </Empty>
-          ) : (
-            filteredBills.map((bill) => <MobileBillCard key={bill.id} bill={bill} />)
-          )}
-        </div>
+      {/* Grouped bill cards */}
+      {loading ? (
+        <div style={{ textAlign: 'center', padding: 64, color: '#8c8c8c' }}>Đang tải...</div>
+      ) : groupedBills.length === 0 ? (
+        <Empty
+          description="Chưa có khoản thanh toán nào"
+          style={{ padding: '64px 24px', background: '#fff', borderRadius: 16 }}
+        >
+          <Button type="primary" icon={<PlusOutlined />} onClick={() => setBillModalOpen(true)}>
+            Thêm khoản đầu tiên
+          </Button>
+        </Empty>
       ) : (
-        // Desktop: Table
-        <Card style={{ borderRadius: 12, border: 'none', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
-          <Table
-            dataSource={filteredBills}
-            columns={columns}
-            rowKey="id"
-            loading={loading}
-            locale={{ emptyText: <Empty description="Chưa có khoản thanh toán nào" /> }}
-            pagination={{ pageSize: 20, showTotal: (total) => `Tổng ${total} khoản` }}
-          />
-        </Card>
+        groupedBills.map((group) => (
+          <BillGroupCard key={group.title.trim().toLowerCase()} group={group} />
+        ))
       )}
 
       <BillModal
         open={billModalOpen}
         bill={editingBill}
+        defaultMonth={selectedMonth}
         onClose={() => { setBillModalOpen(false); setEditingBill(null); }}
         onSuccess={handleModalSuccess}
       />
 
-      {/* Full-size Receipt Image Preview */}
+      {/* Receipt Image Preview */}
       <Modal
         open={!!previewImage}
         footer={null}
