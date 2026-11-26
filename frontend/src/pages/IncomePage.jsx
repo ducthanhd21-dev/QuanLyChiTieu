@@ -105,86 +105,103 @@ const IncomePage = () => {
   };
 
   return (
-    <div>
+    <div className="page-enter">
       {/* Header */}
       <div style={{
+        background: 'linear-gradient(135deg, #1a1f36 0%, #52c41a 70%, #389e0d 100%)',
+        borderRadius: 18,
+        padding: isMobile ? '16px 18px' : '20px 28px',
         marginBottom: 20,
         display: 'flex',
-        justifyContent: 'space-between',
         alignItems: 'center',
-        flexWrap: 'wrap',
+        justifyContent: 'space-between',
+        boxShadow: '0 6px 24px rgba(82,196,26,0.25)',
+        position: 'relative',
+        overflow: 'hidden',
         gap: 12,
       }}>
+        <div style={{ position: 'absolute', top: -30, right: 60, width: 120, height: 120, borderRadius: '50%', background: 'rgba(255,255,255,0.08)', pointerEvents: 'none' }} />
         <div>
-          <Title level={3} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <RiseOutlined style={{ color: '#52c41a' }} /> Thu nhập
-          </Title>
-          <Text type="secondary" style={{ fontSize: 13 }}>Theo dõi thu nhập từng ngày trong tháng</Text>
+          <div style={{ color: 'rgba(255,255,255,0.75)', fontSize: 13, marginBottom: 3 }}>📈 Quản lý</div>
+          <div style={{ color: '#fff', fontWeight: 800, fontSize: isMobile ? 18 : 22 }}>Thu nhập</div>
+          <div style={{ color: 'rgba(255,255,255,0.65)', fontSize: 12, marginTop: 4 }}>
+            Theo dõi thu nhập từng ngày trong tháng
+          </div>
         </div>
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', width: isMobile ? '100%' : 'auto' }}>
+        <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
           <DatePicker
             picker="month"
             value={selectedMonth}
             onChange={(val) => val && setSelectedMonth(val)}
             format="MM/YYYY"
             allowClear={false}
-            style={{ flex: isMobile ? 1 : 'none' }}
+            style={{
+              borderRadius: 10,
+              background: 'rgba(255,255,255,0.15)',
+              border: '1px solid rgba(255,255,255,0.3)',
+              width: isMobile ? 100 : 120,
+            }}
           />
-          <Button type="primary" icon={<PlusOutlined />} onClick={openAdd} style={{ background: '#52c41a', borderColor: '#52c41a' }}>
-            {isMobile ? 'Thêm' : 'Thêm khoản thu nhập'}
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={openAdd}
+            style={{
+              background: 'rgba(255,255,255,0.2)',
+              border: '1px solid rgba(255,255,255,0.4)',
+              borderRadius: 10,
+              color: '#fff',
+              fontWeight: 600,
+            }}
+          >
+            {isMobile ? 'Thêm' : 'Thêm thu nhập'}
           </Button>
         </div>
       </div>
 
-      {/* Summary card */}
+      {/* Summary cards */}
       <Row gutter={[12, 12]} style={{ marginBottom: 20 }}>
         <Col xs={12} sm={8}>
-          <Card style={{ borderRadius: 14, border: 'none', boxShadow: '0 2px 10px rgba(0,0,0,0.05)', height: '100%' }}
-            bodyStyle={{ padding: isMobile ? '12px 10px' : '18px 20px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div style={{ width: 42, height: 42, borderRadius: 12, background: '#f6ffed', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, color: '#52c41a', flexShrink: 0 }}>
-                <RiseOutlined />
-              </div>
-              <div>
-                <Text type="secondary" style={{ fontSize: 12, display: 'block' }}>Tổng thu nhập</Text>
-                <div style={{ fontWeight: 700, fontSize: isMobile ? 15 : 18, color: '#52c41a' }}>
-                  {formatCurrency(total)}
-                </div>
-              </div>
+          <div style={{
+            background: 'linear-gradient(135deg, #f6ffed, #d9f7be)',
+            borderRadius: 14,
+            padding: isMobile ? '14px 12px' : '18px 20px',
+            boxShadow: '0 2px 8px rgba(82,196,26,0.1)',
+            height: '100%',
+          }}>
+            <Text style={{ fontSize: 12, color: '#6b7280', fontWeight: 500 }}>📈 Tổng thu nhập</Text>
+            <div style={{ fontWeight: 800, fontSize: isMobile ? 16 : 20, color: '#52c41a', marginTop: 4 }}>
+              {formatCurrency(total)}
             </div>
-          </Card>
+          </div>
         </Col>
         <Col xs={12} sm={8}>
-          <Card style={{ borderRadius: 14, border: 'none', boxShadow: '0 2px 10px rgba(0,0,0,0.05)', height: '100%' }}
-            bodyStyle={{ padding: isMobile ? '12px 10px' : '18px 20px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div style={{ width: 42, height: 42, borderRadius: 12, background: '#e6f7ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, color: '#1890ff', flexShrink: 0 }}>
-                <CalendarOutlined />
-              </div>
-              <div>
-                <Text type="secondary" style={{ fontSize: 12, display: 'block' }}>Số ngày</Text>
-                <div style={{ fontWeight: 700, fontSize: isMobile ? 15 : 18, color: '#1890ff' }}>
-                  {entries.length} ngày
-                </div>
-              </div>
+          <div style={{
+            background: 'linear-gradient(135deg, #e6f4ff, #bae7ff)',
+            borderRadius: 14,
+            padding: isMobile ? '14px 12px' : '18px 20px',
+            boxShadow: '0 2px 8px rgba(24,144,255,0.08)',
+            height: '100%',
+          }}>
+            <Text style={{ fontSize: 12, color: '#6b7280', fontWeight: 500 }}>📅 Số ngày có thu nhập</Text>
+            <div style={{ fontWeight: 800, fontSize: isMobile ? 16 : 20, color: '#1890ff', marginTop: 4 }}>
+              {entries.length} ngày
             </div>
-          </Card>
+          </div>
         </Col>
         <Col xs={24} sm={8}>
-          <Card style={{ borderRadius: 14, border: 'none', boxShadow: '0 2px 10px rgba(0,0,0,0.05)', height: '100%' }}
-            bodyStyle={{ padding: isMobile ? '12px 10px' : '18px 20px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div style={{ width: 42, height: 42, borderRadius: 12, background: '#fff7e6', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, color: '#fa8c16', flexShrink: 0 }}>
-                <DollarOutlined />
-              </div>
-              <div>
-                <Text type="secondary" style={{ fontSize: 12, display: 'block' }}>Trung bình/ngày</Text>
-                <div style={{ fontWeight: 700, fontSize: isMobile ? 15 : 18, color: '#fa8c16' }}>
-                  {entries.length > 0 ? formatCurrency(total / entries.length) : '—'}
-                </div>
-              </div>
+          <div style={{
+            background: 'linear-gradient(135deg, #fff7e6, #ffe7ba)',
+            borderRadius: 14,
+            padding: isMobile ? '14px 12px' : '18px 20px',
+            boxShadow: '0 2px 8px rgba(250,140,22,0.08)',
+            height: '100%',
+          }}>
+            <Text style={{ fontSize: 12, color: '#6b7280', fontWeight: 500 }}>💡 Trung bình/ngày</Text>
+            <div style={{ fontWeight: 800, fontSize: isMobile ? 16 : 20, color: '#fa8c16', marginTop: 4 }}>
+              {entries.length > 0 ? formatCurrency(total / entries.length) : '—'}
             </div>
-          </Card>
+          </div>
         </Col>
       </Row>
 

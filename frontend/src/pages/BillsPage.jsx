@@ -471,28 +471,58 @@ const BillsPage = () => {
   const unpaidAll = totalAll - paidAll;
 
   return (
-    <div>
-      {/* Header */}
+    <div className="page-enter">
+      {/* Header banner */}
       <div style={{
+        background: 'linear-gradient(135deg, #1a1f36 0%, #1890ff 60%, #096dd9 100%)',
+        borderRadius: 18,
+        padding: isMobile ? '16px 18px' : '20px 28px',
         marginBottom: 16,
         display: 'flex',
-        justifyContent: 'space-between',
         alignItems: 'center',
-        flexWrap: 'wrap',
+        justifyContent: 'space-between',
+        boxShadow: '0 6px 24px rgba(24,144,255,0.25)',
+        position: 'relative',
+        overflow: 'hidden',
         gap: 12,
       }}>
-        <Title level={3} style={{ margin: 0 }}>Khoản thanh toán</Title>
-        <Space wrap>
+        <div style={{ position: 'absolute', top: -30, right: 60, width: 120, height: 120, borderRadius: '50%', background: 'rgba(255,255,255,0.06)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', bottom: -20, right: -20, width: 100, height: 100, borderRadius: '50%', background: 'rgba(255,255,255,0.08)', pointerEvents: 'none' }} />
+        <div>
+          <div style={{ color: 'rgba(255,255,255,0.75)', fontSize: 13, marginBottom: 3 }}>📋 Quản lý</div>
+          <div style={{ color: '#fff', fontWeight: 800, fontSize: isMobile ? 18 : 22 }}>Khoản thanh toán</div>
+          <div style={{ color: 'rgba(255,255,255,0.65)', fontSize: 12, marginTop: 4 }}>
+            {bills.length > 0 ? `${bills.length} khoản · Nhóm theo tên hóa đơn` : 'Chưa có khoản nào'}
+          </div>
+        </div>
+        <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
           <Button
-            icon={<FileExcelOutlined style={{ color: '#52c41a' }} />}
+            icon={<FileExcelOutlined />}
             onClick={handleExportExcel}
+            style={{
+              background: 'rgba(255,255,255,0.15)',
+              border: '1px solid rgba(255,255,255,0.3)',
+              borderRadius: 10,
+              color: '#fff',
+            }}
           >
-            {isMobile ? 'Excel' : 'Xuất Excel'}
+            {isMobile ? '' : 'Excel'}
           </Button>
-          <Button type="primary" icon={<PlusOutlined />} onClick={() => setBillModalOpen(true)}>
-            {isMobile ? 'Thêm' : 'Thêm khoản thanh toán'}
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() => setBillModalOpen(true)}
+            style={{
+              background: 'rgba(255,255,255,0.2)',
+              border: '1px solid rgba(255,255,255,0.4)',
+              borderRadius: 10,
+              color: '#fff',
+              fontWeight: 600,
+            }}
+          >
+            {isMobile ? 'Thêm' : 'Thêm khoản'}
           </Button>
-        </Space>
+        </div>
       </div>
 
       {/* Overview stats */}
@@ -504,21 +534,21 @@ const BillsPage = () => {
           marginBottom: 14,
         }}>
           {[
-            { label: 'Tổng cộng', value: totalAll, color: '#1890ff', bg: '#e6f4ff', fullOnMobile: true },
-            { label: 'Đã thanh toán', value: paidAll, color: '#52c41a', bg: '#f6ffed', fullOnMobile: false },
-            { label: 'Còn lại', value: unpaidAll, color: '#ff4d4f', bg: '#fff2f0', fullOnMobile: false },
+            { label: '💰 Tổng cộng', value: totalAll, color: '#1890ff', bg: 'linear-gradient(135deg, #e6f4ff, #bae7ff)', fullOnMobile: true },
+            { label: '✅ Đã thanh toán', value: paidAll, color: '#52c41a', bg: 'linear-gradient(135deg, #f6ffed, #d9f7be)', fullOnMobile: false },
+            { label: '⏳ Còn lại', value: unpaidAll, color: '#ff4d4f', bg: 'linear-gradient(135deg, #fff2f0, #ffd6d6)', fullOnMobile: false },
           ].map((stat) => (
             <div key={stat.label} style={{
               background: stat.bg,
-              borderRadius: 12,
-              padding: isMobile && stat.fullOnMobile ? '12px 16px' : '12px 16px',
-              border: `1px solid ${stat.color}30`,
+              borderRadius: 14,
+              padding: '14px 16px',
               gridColumn: isMobile && stat.fullOnMobile ? '1 / -1' : 'auto',
               display: isMobile && stat.fullOnMobile ? 'flex' : 'block',
               alignItems: 'center',
               justifyContent: 'space-between',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
             }}>
-              <Text style={{ fontSize: 12, color: '#8c8c8c', display: 'block' }}>{stat.label}</Text>
+              <Text style={{ fontSize: 12, color: '#6b7280', display: 'block', fontWeight: 500 }}>{stat.label}</Text>
               <Text strong style={{ fontSize: isMobile ? (stat.fullOnMobile ? 17 : 15) : 16, color: stat.color }}>
                 {formatCurrency(stat.value)}
               </Text>

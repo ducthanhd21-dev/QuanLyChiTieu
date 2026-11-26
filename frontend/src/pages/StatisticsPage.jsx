@@ -198,17 +198,29 @@ const StatisticsPage = () => {
   };
 
   return (
-    <div>
-      {/* Header */}
+    <div className="page-enter">
+      {/* Header banner */}
       <div style={{
+        background: 'linear-gradient(135deg, #1a1f36 0%, #722ed1 60%, #531dab 100%)',
+        borderRadius: 18,
+        padding: isMobile ? '16px 18px' : '20px 28px',
         marginBottom: 20,
         display: 'flex',
-        justifyContent: 'space-between',
         alignItems: 'center',
-        flexWrap: 'wrap',
+        justifyContent: 'space-between',
+        boxShadow: '0 6px 24px rgba(114,46,209,0.25)',
+        position: 'relative',
+        overflow: 'hidden',
         gap: 12,
       }}>
-        <Title level={3} style={{ margin: 0 }}>Thống kê</Title>
+        <div style={{ position: 'absolute', top: -30, right: 60, width: 120, height: 120, borderRadius: '50%', background: 'rgba(255,255,255,0.06)', pointerEvents: 'none' }} />
+        <div>
+          <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: 13, marginBottom: 3 }}>📊 Phân tích</div>
+          <div style={{ color: '#fff', fontWeight: 800, fontSize: isMobile ? 18 : 22 }}>Thống kê chi tiêu</div>
+          <div style={{ color: 'rgba(255,255,255,0.65)', fontSize: 12, marginTop: 4 }}>
+            Xem chi tiết 7 tháng xung quanh tháng được chọn
+          </div>
+        </div>
         <DatePicker
           picker="month"
           value={selectedMonth}
@@ -216,7 +228,13 @@ const StatisticsPage = () => {
           format="MM/YYYY"
           placeholder="Chọn tháng"
           allowClear={false}
-          style={{ width: isMobile ? '100%' : 'auto' }}
+          style={{
+            borderRadius: 10,
+            background: 'rgba(255,255,255,0.15)',
+            border: '1px solid rgba(255,255,255,0.3)',
+            width: isMobile ? 100 : 120,
+            flexShrink: 0,
+          }}
         />
       </div>
 
@@ -288,32 +306,39 @@ const StatisticsPage = () => {
                   {categoryData.map((cat, idx) => {
                     const totalSum = categoryData.reduce((sum, c) => sum + parseFloat(c.total_amount), 0);
                     const pct = totalSum > 0 ? (parseFloat(cat.total_amount) / totalSum) * 100 : 0;
+                    const color = COLORS[idx % COLORS.length];
                     return (
                       <div
                         key={cat.category}
                         style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 10,
                           padding: '12px 0',
-                          borderBottom: idx < categoryData.length - 1 ? '1px solid #f0f0f0' : 'none',
+                          borderBottom: idx < categoryData.length - 1 ? '1px solid #f5f5f5' : 'none',
                         }}
                       >
-                        <div style={{
-                          width: 12,
-                          height: 12,
-                          borderRadius: '50%',
-                          background: COLORS[idx % COLORS.length],
-                          flexShrink: 0,
-                        }} />
-                        <Text style={{ flex: 1, fontWeight: 500 }} ellipsis>{cat.category}</Text>
-                        <Text type="secondary" style={{ fontSize: 12 }}>{cat.total_bills} khoản</Text>
-                        <Text type="secondary" style={{ width: 45, textAlign: 'right', fontSize: 12 }}>
-                          {pct.toFixed(1)}%
-                        </Text>
-                        <Text strong style={{ color: '#1890ff', width: isMobile ? 90 : 120, textAlign: 'right', fontSize: isMobile ? 13 : 14 }}>
-                          {formatCurrency(cat.total_amount)}
-                        </Text>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+                          <div style={{
+                            width: 10, height: 10, borderRadius: '50%',
+                            background: color, flexShrink: 0,
+                          }} />
+                          <Text style={{ flex: 1, fontWeight: 600, fontSize: 13 }} ellipsis>{cat.category}</Text>
+                          <Text type="secondary" style={{ fontSize: 12 }}>{cat.total_bills} khoản</Text>
+                          <Text type="secondary" style={{ fontSize: 12, width: 40, textAlign: 'right' }}>
+                            {pct.toFixed(1)}%
+                          </Text>
+                          <Text strong style={{ color, width: isMobile ? 90 : 110, textAlign: 'right', fontSize: isMobile ? 13 : 14 }}>
+                            {formatCurrency(cat.total_amount)}
+                          </Text>
+                        </div>
+                        {/* Progress bar */}
+                        <div style={{ height: 6, background: '#f0f0f0', borderRadius: 6, overflow: 'hidden', marginLeft: 20 }}>
+                          <div style={{
+                            height: '100%',
+                            width: `${pct}%`,
+                            background: color,
+                            borderRadius: 6,
+                            transition: 'width 0.5s ease',
+                          }} />
+                        </div>
                       </div>
                     );
                   })}

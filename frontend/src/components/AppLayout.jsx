@@ -1,16 +1,16 @@
 import { useState } from 'react';
-import { Layout, Menu, Button, Avatar, Typography, Drawer, Modal } from 'antd';
+import { Layout, Menu, Button, Avatar, Typography, Drawer, Modal, Tooltip } from 'antd';
 import {
-  DashboardOutlined,
   HomeOutlined,
   FileTextOutlined,
   BarChartOutlined,
   SettingOutlined,
   LogoutOutlined,
-  MenuOutlined,
   CrownOutlined,
   RiseOutlined,
   ShoppingOutlined,
+  MenuOutlined,
+  UserOutlined,
 } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -18,6 +18,26 @@ import PWAInstallPrompt from './PWAInstallPrompt';
 
 const { Sider, Header, Content } = Layout;
 const { Text } = Typography;
+
+// Page title map
+const PAGE_TITLES = {
+  '/dashboard': 'Trang chủ',
+  '/bills': 'Khoản thanh toán',
+  '/income': 'Thu nhập',
+  '/expenses': 'Chi tiêu hàng ngày',
+  '/statistics': 'Thống kê',
+  '/settings': 'Cài đặt',
+  '/admin': 'Quản trị',
+};
+
+// Bottom nav items (max 5 for mobile)
+const BOTTOM_NAV_ITEMS = [
+  { key: '/dashboard', icon: '🏠', label: 'Trang chủ' },
+  { key: '/bills', icon: '📋', label: 'Hóa đơn' },
+  { key: '/expenses', icon: '🛒', label: 'Chi tiêu' },
+  { key: '/income', icon: '📈', label: 'Thu nhập' },
+  { key: '/statistics', icon: '📊', label: 'Thống kê' },
+];
 
 const AppLayout = ({ children }) => {
   const { user, logout } = useAuth();
@@ -43,7 +63,7 @@ const AppLayout = ({ children }) => {
           icon: <CrownOutlined style={{ color: '#faad14' }} />,
           label: (
             <span>
-              Quản trị <span style={{ fontSize: 10, background: '#722ed1', color: '#fff', padding: '1px 5px', borderRadius: 4, marginLeft: 4 }}>Admin</span>
+              Quản trị <span className="badge-admin" style={{ marginLeft: 4 }}>Admin</span>
             </span>
           ),
         },
@@ -70,36 +90,37 @@ const AppLayout = ({ children }) => {
     });
   };
 
+  const currentPageTitle = PAGE_TITLES[location.pathname] || 'Quản Lý Chi Tiêu';
+
   const SideMenu = () => (
     <>
       {/* Logo */}
       <div style={{
-        padding: '16px 14px',
+        padding: '18px 16px',
         display: 'flex',
         alignItems: 'center',
         gap: 12,
-        borderBottom: '1px solid rgba(255,255,255,0.08)',
-        marginBottom: 8,
+        borderBottom: '1px solid rgba(255,255,255,0.07)',
+        marginBottom: 6,
+        background: 'rgba(255,255,255,0.03)',
       }}>
-        {/* App logo icon */}
         <img
           src="/icon-192.png"
           alt="Hóa đơn"
           style={{
-            width: 36,
-            height: 36,
+            width: 38,
+            height: 38,
             borderRadius: 10,
             objectFit: 'cover',
-            boxShadow: '0 4px 12px rgba(24, 144, 255, 0.35)',
+            boxShadow: '0 4px 14px rgba(24, 144, 255, 0.4)',
             flexShrink: 0,
           }}
         />
-
         {!collapsed && (
-          <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.2 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.3 }}>
             <span style={{
               color: '#fff',
-              fontSize: 16,
+              fontSize: 15,
               fontWeight: 700,
               letterSpacing: '0.3px',
               whiteSpace: 'nowrap',
@@ -107,11 +128,11 @@ const AppLayout = ({ children }) => {
               Quản Lý Chi Tiêu
             </span>
             <span style={{
-              color: 'rgba(255,255,255,0.45)',
+              color: 'rgba(255,255,255,0.4)',
               fontSize: 11,
-              marginTop: 3,
+              marginTop: 2,
             }}>
-              bởi <span style={{ color: '#69c0ff', fontWeight: 500 }}>Đức Thành</span>
+              bởi <span style={{ color: '#69c0ff', fontWeight: 600 }}>Đức Thành</span>
             </span>
           </div>
         )}
@@ -123,7 +144,12 @@ const AppLayout = ({ children }) => {
         selectedKeys={[location.pathname]}
         items={menuItems}
         onClick={handleMenuClick}
-        style={{ border: 'none', flex: 1 }}
+        style={{
+          border: 'none',
+          flex: 1,
+          background: 'transparent',
+          padding: '4px 8px',
+        }}
       />
 
       {/* PWA Install Button */}
@@ -131,13 +157,23 @@ const AppLayout = ({ children }) => {
 
       {/* User info + Logout */}
       <div style={{
-        padding: '16px',
-        borderTop: '1px solid rgba(255,255,255,0.1)',
+        padding: '14px 12px',
+        borderTop: '1px solid rgba(255,255,255,0.08)',
         display: 'flex',
         alignItems: 'center',
         gap: 10,
+        background: 'rgba(0,0,0,0.15)',
       }}>
-        <Avatar style={{ backgroundColor: user?.role === 'admin' ? '#722ed1' : '#1890ff', flexShrink: 0 }}>
+        <Avatar
+          style={{
+            background: user?.role === 'admin'
+              ? 'linear-gradient(135deg, #722ed1, #531dab)'
+              : 'linear-gradient(135deg, #1890ff, #096dd9)',
+            flexShrink: 0,
+            boxShadow: '0 2px 8px rgba(0,0,0,0.25)',
+            fontWeight: 700,
+          }}
+        >
           {user?.name?.charAt(0)?.toUpperCase()}
         </Avatar>
         {!collapsed && (
@@ -147,23 +183,26 @@ const AppLayout = ({ children }) => {
                 {user?.name}
               </Text>
               {user?.role === 'admin' && (
-                <span style={{ fontSize: 10, background: '#722ed1', color: '#fff', padding: '0 4px', borderRadius: 3 }}>
-                  Admin
-                </span>
+                <span className="badge-admin">Admin</span>
               )}
             </div>
-            <Text style={{ color: 'rgba(255,255,255,0.45)', fontSize: 11 }} ellipsis>
+            <Text style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11 }} ellipsis>
               {user?.email}
             </Text>
           </div>
         )}
-        <Button
-          type="text"
-          icon={<LogoutOutlined />}
-          onClick={handleLogout}
-          style={{ color: 'rgba(255,255,255,0.65)' }}
-          title="Đăng xuất"
-        />
+        <Tooltip title="Đăng xuất" placement="right">
+          <Button
+            type="text"
+            icon={<LogoutOutlined />}
+            onClick={handleLogout}
+            style={{
+              color: 'rgba(255,255,255,0.5)',
+              borderRadius: 8,
+              transition: 'all 0.2s',
+            }}
+          />
+        </Tooltip>
       </div>
     </>
   );
@@ -176,7 +215,7 @@ const AppLayout = ({ children }) => {
         collapsed={collapsed}
         onCollapse={setCollapsed}
         breakpoint="lg"
-        collapsedWidth={80}
+        collapsedWidth={72}
         width={220}
         style={{
           position: 'fixed',
@@ -184,9 +223,10 @@ const AppLayout = ({ children }) => {
           top: 0,
           bottom: 0,
           zIndex: 100,
-          background: '#001529',
+          background: 'linear-gradient(180deg, #0f172a 0%, #1e293b 60%, #0f172a 100%)',
           display: 'flex',
           flexDirection: 'column',
+          boxShadow: '2px 0 16px rgba(0,0,0,0.15)',
         }}
         className="desktop-sider"
       >
@@ -195,12 +235,17 @@ const AppLayout = ({ children }) => {
         </div>
       </Sider>
 
-      {/* Mobile Drawer */}
+      {/* Mobile Drawer (for more options) */}
       <Drawer
         placement="left"
         open={mobileMenuOpen}
         onClose={() => setMobileMenuOpen(false)}
-        bodyStyle={{ padding: 0, background: '#001529', display: 'flex', flexDirection: 'column' }}
+        bodyStyle={{
+          padding: 0,
+          background: 'linear-gradient(180deg, #0f172a 0%, #1e293b 100%)',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
         width={260}
         closable={false}
       >
@@ -208,54 +253,119 @@ const AppLayout = ({ children }) => {
       </Drawer>
 
       {/* Main layout */}
-      <Layout style={{ marginLeft: collapsed ? 80 : 220, transition: 'margin-left 0.2s' }} className="main-layout">
+      <Layout
+        style={{ marginLeft: collapsed ? 72 : 220, transition: 'margin-left 0.2s ease' }}
+        className="main-layout"
+      >
+        {/* Desktop Header */}
         <Header
-          className="app-header"
+          className="desktop-header"
           style={{
             background: '#fff',
-            padding: '0 20px',
+            padding: '0 24px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            boxShadow: '0 1px 4px rgba(0,21,41,0.08)',
+            boxShadow: '0 1px 6px rgba(0,0,0,0.06)',
             position: 'sticky',
             top: 0,
             zIndex: 99,
+            height: 56,
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <Button
-              className="mobile-menu-btn"
-              type="text"
-              icon={<MenuOutlined />}
-              onClick={() => setMobileMenuOpen(true)}
-              style={{ display: 'none' }}
-            />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontWeight: 700, fontSize: 16, color: '#1a1f36' }}>
+              {currentPageTitle}
+            </span>
           </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <Avatar style={{ backgroundColor: user?.role === 'admin' ? '#722ed1' : '#1890ff' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Avatar
+                size={34}
+                style={{
+                  background: user?.role === 'admin'
+                    ? 'linear-gradient(135deg, #722ed1, #531dab)'
+                    : 'linear-gradient(135deg, #1890ff, #096dd9)',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                }}
+              >
                 {user?.name?.charAt(0)?.toUpperCase()}
               </Avatar>
-              <Text strong style={{ display: 'none' }} className="username-text">
-                {user?.name}
-              </Text>
+              <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.2 }}>
+                <Text strong style={{ fontSize: 13, color: '#1a1f36' }}>{user?.name}</Text>
+                {user?.role === 'admin' && (
+                  <span className="badge-admin">Admin</span>
+                )}
+              </div>
             </div>
+            <Tooltip title="Đăng xuất">
+              <Button
+                type="text"
+                icon={<LogoutOutlined />}
+                onClick={handleLogout}
+                style={{ color: '#8c8c8c' }}
+              />
+            </Tooltip>
           </div>
         </Header>
+
+        {/* Mobile App Bar */}
+        <div className="mobile-app-bar">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <img src="/icon-192.png" alt="app" className="bar-logo" />
+            <span className="bar-title">{currentPageTitle}</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Avatar
+              size={32}
+              style={{
+                background: user?.role === 'admin'
+                  ? 'linear-gradient(135deg, #722ed1, #531dab)'
+                  : 'linear-gradient(135deg, #1890ff, #096dd9)',
+                fontWeight: 700,
+                cursor: 'pointer',
+              }}
+              onClick={handleLogout}
+            >
+              {user?.name?.charAt(0)?.toUpperCase()}
+            </Avatar>
+          </div>
+        </div>
 
         <Content
           className="app-content"
           style={{
-            padding: '24px',
-            background: '#f0f2f5',
-            minHeight: 'calc(100vh - 64px)',
+            padding: '20px 20px 24px',
+            background: '#f0f4f8',
+            minHeight: 'calc(100vh - 56px)',
           }}
         >
           {children}
         </Content>
       </Layout>
+
+      {/* Mobile Bottom Navigation */}
+      <nav className="bottom-nav">
+        {BOTTOM_NAV_ITEMS.map((item) => (
+          <button
+            key={item.key}
+            className={`bottom-nav-item${location.pathname === item.key ? ' active' : ''}`}
+            onClick={() => navigate(item.key)}
+          >
+            <span className="nav-icon">{item.icon}</span>
+            <span className="nav-label">{item.label}</span>
+          </button>
+        ))}
+        {/* More / Settings */}
+        <button
+          className={`bottom-nav-item${['/settings', '/admin'].includes(location.pathname) ? ' active' : ''}`}
+          onClick={() => navigate('/settings')}
+        >
+          <span className="nav-icon">⚙️</span>
+          <span className="nav-label">Cài đặt</span>
+        </button>
+      </nav>
     </Layout>
   );
 };

@@ -186,23 +186,28 @@ const DailyExpensesPage = () => {
   const avgPerDay = uniqueDays > 0 ? total / uniqueDays : 0;
 
   return (
-    <div>
-      {/* Header */}
+    <div className="page-enter">
+      {/* Header banner */}
       <div style={{
+        background: 'linear-gradient(135deg, #1a1f36 0%, #fa8c16 65%, #d46b08 100%)',
+        borderRadius: 18,
+        padding: isMobile ? '16px 18px' : '20px 28px',
         marginBottom: 16,
         display: 'flex',
-        justifyContent: 'space-between',
         alignItems: 'center',
-        flexWrap: 'wrap',
+        justifyContent: 'space-between',
+        boxShadow: '0 6px 24px rgba(250,140,22,0.25)',
+        position: 'relative',
+        overflow: 'hidden',
         gap: 12,
       }}>
+        <div style={{ position: 'absolute', top: -30, right: 60, width: 120, height: 120, borderRadius: '50%', background: 'rgba(255,255,255,0.08)', pointerEvents: 'none' }} />
         <div>
-          <Title level={3} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-            <ShoppingOutlined style={{ color: '#fa8c16' }} /> Chi tiêu hàng ngày
-          </Title>
-          <Text type="secondary" style={{ fontSize: 13 }}>
-            Ghi nhanh các khoản chi lặt vặt (ăn uống, cà phê, xăng xe...)
-          </Text>
+          <div style={{ color: 'rgba(255,255,255,0.75)', fontSize: 13, marginBottom: 3 }}>🛒 Ghi nhanh</div>
+          <div style={{ color: '#fff', fontWeight: 800, fontSize: isMobile ? 18 : 22 }}>Chi tiêu hàng ngày</div>
+          <div style={{ color: 'rgba(255,255,255,0.65)', fontSize: 12, marginTop: 4 }}>
+            Ăn uống, cà phê, xăng xe... · {selectedMonth.format('MM/YYYY')}
+          </div>
         </div>
         <DatePicker
           picker="month"
@@ -210,7 +215,13 @@ const DailyExpensesPage = () => {
           onChange={(d) => d && setSelectedMonth(d)}
           format="MM/YYYY"
           allowClear={false}
-          style={{ width: isMobile ? '100%' : 150 }}
+          style={{
+            borderRadius: 10,
+            background: 'rgba(255,255,255,0.15)',
+            border: '1px solid rgba(255,255,255,0.3)',
+            width: isMobile ? 100 : 130,
+            flexShrink: 0,
+          }}
         />
       </div>
 
@@ -350,17 +361,17 @@ const DailyExpensesPage = () => {
         marginBottom: 14,
       }}>
         <div style={{
-          background: '#fff7e6',
-          borderRadius: 12,
-          padding: '12px 16px',
-          border: '1px solid #ffd591',
+          background: 'linear-gradient(135deg, #fff7e6, #ffe7ba)',
+          borderRadius: 14,
+          padding: '14px 16px',
           gridColumn: isMobile ? '1 / -1' : 'auto',
           display: isMobile ? 'flex' : 'block',
           alignItems: 'center',
           justifyContent: 'space-between',
+          boxShadow: '0 2px 8px rgba(250,140,22,0.1)',
         }}>
-          <Text style={{ fontSize: 12, color: '#8c8c8c', display: 'block' }}>
-            Tổng chi tháng {selectedMonth.format('MM/YYYY')}
+          <Text style={{ fontSize: 12, color: '#8c8c8c', display: 'block', fontWeight: 500 }}>
+            🛒 Tổng chi tháng {selectedMonth.format('MM/YYYY')}
           </Text>
           <Text strong style={{ fontSize: isMobile ? 17 : 18, color: '#fa8c16' }}>
             {formatCurrency(total)}
@@ -368,24 +379,24 @@ const DailyExpensesPage = () => {
         </div>
 
         <div style={{
-          background: '#e6f4ff',
-          borderRadius: 12,
-          padding: '12px 16px',
-          border: '1px solid #91caff',
+          background: 'linear-gradient(135deg, #e6f4ff, #bae7ff)',
+          borderRadius: 14,
+          padding: '14px 16px',
+          boxShadow: '0 2px 8px rgba(24,144,255,0.08)',
         }}>
-          <Text style={{ fontSize: 12, color: '#8c8c8c', display: 'block' }}>Hôm nay</Text>
+          <Text style={{ fontSize: 12, color: '#8c8c8c', display: 'block', fontWeight: 500 }}>📅 Hôm nay</Text>
           <Text strong style={{ fontSize: isMobile ? 15 : 17, color: '#1890ff' }}>
             {formatCurrency(todayTotal)}
           </Text>
         </div>
 
         <div style={{
-          background: '#f9f0ff',
-          borderRadius: 12,
-          padding: '12px 16px',
-          border: '1px solid #d3adf7',
+          background: 'linear-gradient(135deg, #f9f0ff, #efdbff)',
+          borderRadius: 14,
+          padding: '14px 16px',
+          boxShadow: '0 2px 8px rgba(114,46,209,0.08)',
         }}>
-          <Text style={{ fontSize: 12, color: '#8c8c8c', display: 'block' }}>Trung bình/ngày</Text>
+          <Text style={{ fontSize: 12, color: '#8c8c8c', display: 'block', fontWeight: 500 }}>📊 TB/ngày</Text>
           <Text strong style={{ fontSize: isMobile ? 15 : 17, color: '#722ed1' }}>
             {formatCurrency(Math.round(avgPerDay))}
           </Text>
@@ -443,21 +454,29 @@ const DailyExpensesPage = () => {
             {/* Day Header */}
             <div style={{
               padding: '10px 16px',
-              background: '#fafafa',
-              borderBottom: '1px solid #f0f0f0',
+              background: 'linear-gradient(90deg, #fff7e6 0%, #fff 100%)',
+              borderBottom: '1px solid #f0ebe0',
               borderTopLeftRadius: 14,
               borderTopRightRadius: 14,
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
             }}>
-              <Text strong style={{ fontSize: 13, color: '#434343', textTransform: 'capitalize' }}>
+              <Text strong style={{ fontSize: 13, color: '#8c5a2b', textTransform: 'capitalize' }}>
                 <CalendarOutlined style={{ marginRight: 6, color: '#fa8c16' }} />
                 {formatDayHeading(dayGroup.date)}
               </Text>
-              <Text strong style={{ fontSize: 14, color: '#fa8c16' }}>
+              <span style={{
+                background: '#fff7e6',
+                border: '1px solid #ffd591',
+                borderRadius: 10,
+                padding: '2px 10px',
+                fontSize: 13,
+                fontWeight: 700,
+                color: '#d46b08',
+              }}>
                 -{formatCurrency(dayGroup.dayTotal)}
-              </Text>
+              </span>
             </div>
 
             {/* Day Items */}
@@ -466,31 +485,33 @@ const DailyExpensesPage = () => {
               return (
                 <div
                   key={item.id}
+                  className="bill-item"
                   style={{
                     padding: isMobile ? '11px 14px' : '12px 16px',
                     display: 'flex',
                     alignItems: 'center',
                     gap: 10,
-                    borderBottom: idx < dayGroup.items.length - 1 ? '1px solid #f5f5f5' : 'none',
+                    borderBottom: idx < dayGroup.items.length - 1 ? '1px solid #f8f8f8' : 'none',
                   }}
                 >
                   <div style={{
-                    width: 34,
-                    height: 34,
+                    width: 36,
+                    height: 36,
                     borderRadius: 10,
                     background: cfg.bg,
                     border: `1px solid ${cfg.border}`,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: 16,
+                    fontSize: 17,
                     flexShrink: 0,
+                    boxShadow: '0 1px 4px rgba(0,0,0,0.05)',
                   }}>
                     {cfg.emoji}
                   </div>
 
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontWeight: 500, fontSize: 14, color: '#262626' }}>
+                    <div style={{ fontWeight: 600, fontSize: 14, color: '#1a1f36' }}>
                       {item.note || item.category}
                     </div>
                     {item.note && (
@@ -498,7 +519,7 @@ const DailyExpensesPage = () => {
                     )}
                   </div>
 
-                  <Text strong style={{ color: '#262626', fontSize: 14, whiteSpace: 'nowrap', flexShrink: 0 }}>
+                  <Text strong style={{ color: '#fa8c16', fontSize: 14, whiteSpace: 'nowrap', flexShrink: 0 }}>
                     -{formatCurrency(item.amount)}
                   </Text>
 

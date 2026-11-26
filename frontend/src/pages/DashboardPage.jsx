@@ -167,39 +167,56 @@ const DashboardPage = () => {
     notification.success({ message: 'Đã xuất file Excel thành công!' });
   };
 
+  // Greeting based on time of day
+  const getGreeting = () => {
+    const h = new Date().getHours();
+    if (h < 12) return { text: 'Chào buổi sáng', emoji: '🌅' };
+    if (h < 18) return { text: 'Chào buổi chiều', emoji: '☀️' };
+    return { text: 'Chào buổi tối', emoji: '🌙' };
+  };
+  const greeting = getGreeting();
+
   const statsCards = summary ? [
     {
-      title: 'Tổng số tiền',
+      title: 'Tổng chi tiêu',
       value: summary.totalAmount,
       icon: <DollarOutlined />,
       color: '#1890ff',
-      bgColor: '#e6f7ff',
+      gradient: 'linear-gradient(135deg, #1890ff 0%, #096dd9 100%)',
+      bgGradient: 'linear-gradient(135deg, #e6f7ff 0%, #bae7ff 100%)',
       format: 'currency',
+      emoji: '💰',
     },
     {
       title: 'Đã thanh toán',
       value: summary.paidAmount,
       icon: <CheckCircleOutlined />,
       color: '#52c41a',
-      bgColor: '#f6ffed',
+      gradient: 'linear-gradient(135deg, #52c41a 0%, #389e0d 100%)',
+      bgGradient: 'linear-gradient(135deg, #f6ffed 0%, #d9f7be 100%)',
       format: 'currency',
+      emoji: '✅',
     },
     {
       title: 'Chưa thanh toán',
       value: summary.unpaidAmount,
       icon: <ClockCircleOutlined />,
       color: '#faad14',
-      bgColor: '#fffbe6',
+      gradient: 'linear-gradient(135deg, #faad14 0%, #d48806 100%)',
+      bgGradient: 'linear-gradient(135deg, #fffbe6 0%, #fff1b8 100%)',
       format: 'currency',
+      emoji: '⏳',
     },
     {
       title: 'Số hóa đơn',
       value: summary.totalBills,
-      suffix: `(${summary.paidCount} đã đóng)`,
+      suffix: `${summary.paidCount} đã đóng`,
       icon: <FireOutlined />,
       color: '#722ed1',
-      bgColor: '#f9f0ff',
+      gradient: 'linear-gradient(135deg, #722ed1 0%, #531dab 100%)',
+      bgGradient: 'linear-gradient(135deg, #f9f0ff 0%, #efdbff 100%)',
       format: 'number',
+      emoji: '📋',
     },
   ] : [];
 
@@ -220,9 +237,88 @@ const DashboardPage = () => {
   const incomeProgress = incomeTotal > 0 ? Math.round(((summary ? summary.totalAmount : 0) / incomeTotal) * 100) : 0;
 
   return (
-    <div>
+    <div className="page-enter">
       {/* PWA Mobile Install Banner */}
       {isMobile && <PWAInstallPrompt type="banner" />}
+
+      {/* Welcome Greeting Banner */}
+      <div style={{
+        background: 'linear-gradient(135deg, #1a1f36 0%, #1890ff 60%, #096dd9 100%)',
+        borderRadius: 18,
+        padding: isMobile ? '16px 18px' : '20px 28px',
+        marginBottom: 16,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        boxShadow: '0 6px 24px rgba(24,144,255,0.25)',
+        position: 'relative',
+        overflow: 'hidden',
+      }}>
+        {/* Decoration */}
+        <div style={{
+          position: 'absolute', top: -30, right: 60,
+          width: 120, height: 120, borderRadius: '50%',
+          background: 'rgba(255,255,255,0.06)', pointerEvents: 'none',
+        }} />
+        <div style={{
+          position: 'absolute', bottom: -20, right: -20,
+          width: 100, height: 100, borderRadius: '50%',
+          background: 'rgba(255,255,255,0.08)', pointerEvents: 'none',
+        }} />
+        <div>
+          <div style={{ color: 'rgba(255,255,255,0.75)', fontSize: isMobile ? 12 : 13, marginBottom: 3 }}>
+            {greeting.emoji} {greeting.text}
+          </div>
+          <div style={{ color: '#fff', fontWeight: 800, fontSize: isMobile ? 18 : 22, lineHeight: 1.2 }}>
+            {user?.name?.split(' ').pop()} 👋
+          </div>
+          <div style={{ color: 'rgba(255,255,255,0.65)', fontSize: isMobile ? 12 : 13, marginTop: 4 }}>
+            Tháng {selectedMonth.format('MM/YYYY')}
+            {summary && ` · ${summary.totalBills} khoản · ${summary.progress}% hoàn thành`}
+          </div>
+        </div>
+        <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
+          <DatePicker
+            picker="month"
+            value={selectedMonth}
+            onChange={(val) => val && setSelectedMonth(val)}
+            format="MM/YYYY"
+            placeholder="Chọn tháng"
+            allowClear={false}
+            style={{
+              borderRadius: 10,
+              background: 'rgba(255,255,255,0.15)',
+              border: '1px solid rgba(255,255,255,0.3)',
+              color: '#fff',
+              width: isMobile ? 100 : 120,
+            }}
+          />
+        </div>
+      </div>
+
+      {/* Action Bar */}
+      <div style={{
+        display: 'flex',
+        gap: 8,
+        marginBottom: 16,
+        flexWrap: 'wrap',
+      }}>
+        <Button
+          icon={<FileExcelOutlined style={{ color: '#52c41a' }} />}
+          onClick={handleExportExcel}
+          style={{ borderRadius: 10 }}
+        >
+          {isMobile ? 'Excel' : 'Xuất Excel'}
+        </Button>
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
+          onClick={() => setBillModalOpen(true)}
+          style={{ marginLeft: 'auto', borderRadius: 10 }}
+        >
+          {isMobile ? 'Thêm' : 'Thêm khoản thanh toán'}
+        </Button>
+      </div>
 
       {/* Due Date Alerts Banner */}
       {(overdueAlerts.length > 0 || upcomingAlerts.length > 0) && (
@@ -353,100 +449,54 @@ const DashboardPage = () => {
         </div>
       )}
 
-      {/* Header */}
-      <div style={{
-        marginBottom: 20,
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        flexWrap: 'wrap',
-        gap: 12,
-      }}>
-        <div>
-          <Title level={3} style={{ margin: 0 }}>
-            Xin chào, {user?.name?.split(' ').pop()} 👋
-          </Title>
-          <Text type="secondary" style={{ fontSize: 13 }}>Quản lý các khoản thanh toán của bạn</Text>
-        </div>
-
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', width: isMobile ? '100%' : 'auto' }}>
-          <DatePicker
-            picker="month"
-            value={selectedMonth}
-            onChange={(val) => val && setSelectedMonth(val)}
-            format="MM/YYYY"
-            placeholder="Chọn tháng"
-            allowClear={false}
-            style={{ flex: isMobile ? 1 : 'none' }}
-          />
-          <Button
-            icon={<FileExcelOutlined style={{ color: '#52c41a' }} />}
-            onClick={handleExportExcel}
-          >
-            {isMobile ? 'Excel' : 'Xuất Excel'}
-          </Button>
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={() => setBillModalOpen(true)}
-          >
-            {isMobile ? 'Thêm' : 'Thêm khoản thanh toán'}
-          </Button>
-        </div>
-      </div>
-
       <Spin spinning={loading}>
         {/* Stat Cards */}
         <Row gutter={[12, 12]} style={{ marginBottom: 18 }}>
           {statsCards.map((card) => (
             <Col xs={12} sm={12} md={6} key={card.title}>
               <Card
+                className="stat-card"
                 style={{
-                  borderRadius: 14,
+                  borderRadius: 16,
                   border: 'none',
-                  boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
+                  boxShadow: '0 2px 10px rgba(0,0,0,0.06)',
                   height: '100%',
+                  overflow: 'hidden',
                 }}
-                bodyStyle={{ padding: isMobile ? '12px 10px' : '18px 16px' }}
+                bodyStyle={{ padding: isMobile ? '14px 12px' : '18px 16px' }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 8 : 12 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 8 : 10, marginBottom: 8 }}>
                   <div style={{
-                    width: isMobile ? 38 : 46,
-                    height: isMobile ? 38 : 46,
-                    borderRadius: 12,
-                    background: card.bgColor,
+                    width: isMobile ? 40 : 48,
+                    height: isMobile ? 40 : 48,
+                    borderRadius: 14,
+                    background: card.bgGradient,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: isMobile ? 18 : 22,
-                    color: card.color,
+                    fontSize: isMobile ? 20 : 22,
                     flexShrink: 0,
                   }}>
-                    {card.icon}
+                    {card.emoji}
                   </div>
-                  <div style={{ overflow: 'hidden', minWidth: 0 }}>
-                    <Text type="secondary" style={{ fontSize: isMobile ? 11 : 12, display: 'block' }} ellipsis>
-                      {card.title}
-                    </Text>
-                    <div style={{
-                      fontWeight: 700,
-                      fontSize: isMobile ? 14 : 16,
-                      color: card.color,
-                      lineHeight: 1.3,
-                      whiteSpace: 'nowrap',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                    }}>
-                      {card.format === 'currency'
-                        ? formatCurrency(card.value)
-                        : card.value
-                      }
-                    </div>
-                    {card.suffix && (
-                      <Text type="secondary" style={{ fontSize: 10, display: 'block' }}>{card.suffix}</Text>
-                    )}
-                  </div>
+                  <Text type="secondary" style={{ fontSize: isMobile ? 11 : 12 }} ellipsis>
+                    {card.title}
+                  </Text>
                 </div>
+                <div style={{
+                  fontWeight: 800,
+                  fontSize: isMobile ? 14 : 17,
+                  color: card.color,
+                  lineHeight: 1.2,
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                }}>
+                  {card.format === 'currency' ? formatCurrency(card.value) : card.value}
+                </div>
+                {card.suffix && (
+                  <Text type="secondary" style={{ fontSize: 11 }}>{card.suffix}</Text>
+                )}
               </Card>
             </Col>
           ))}
