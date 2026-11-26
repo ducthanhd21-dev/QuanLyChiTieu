@@ -790,15 +790,16 @@ const DashboardPage = () => {
                 return (
                   <div
                     key={bill.id}
+                    className="bill-item"
                     style={{
-                      background: bill.is_paid ? '#fcfcfc' : '#fff',
-                      borderRadius: 12,
+                      background: bill.is_paid ? '#f8fffe' : '#fff',
+                      borderRadius: 14,
                       padding: '12px 14px',
                       marginBottom: 10,
-                      boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
                       border: '1px solid #f0f0f0',
                       borderLeft: `4px solid ${status === 'paid' ? '#52c41a' : status === 'overdue' ? '#ff4d4f' : '#faad14'}`,
-                      opacity: bill.is_paid ? 0.75 : 1,
+                      opacity: bill.is_paid ? 0.8 : 1,
                     }}
                   >
                     {/* Row 1: Checkbox + Title + Status */}
@@ -902,14 +903,16 @@ const DashboardPage = () => {
                 return (
                   <div
                     key={bill.id}
+                    className="bill-item"
                     style={{
                       padding: '14px 20px',
-                      borderBottom: idx < summary.bills.length - 1 ? '1px solid #f0f0f0' : 'none',
+                      borderBottom: idx < summary.bills.length - 1 ? '1px solid #f5f5f5' : 'none',
                       display: 'flex',
                       alignItems: 'center',
                       gap: 12,
-                      background: bill.is_paid ? '#fafafa' : '#fff',
-                      transition: 'background 0.2s',
+                      background: bill.is_paid ? '#fafcff' : '#fff',
+                      transition: 'background 0.15s',
+                      borderLeft: `3px solid ${status === 'paid' ? '#52c41a' : status === 'overdue' ? '#ff4d4f' : '#faad14'}`,
                     }}
                   >
                     <Checkbox

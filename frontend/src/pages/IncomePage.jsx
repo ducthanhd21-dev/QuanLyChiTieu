@@ -121,7 +121,7 @@ const IncomePage = () => {
         gap: 12,
       }}>
         <div style={{ position: 'absolute', top: -30, right: 60, width: 120, height: 120, borderRadius: '50%', background: 'rgba(255,255,255,0.08)', pointerEvents: 'none' }} />
-        <div>
+        <div className="page-enter">
           <div style={{ color: 'rgba(255,255,255,0.75)', fontSize: 13, marginBottom: 3 }}>📈 Quản lý</div>
           <div style={{ color: '#fff', fontWeight: 800, fontSize: isMobile ? 18 : 22 }}>Thu nhập</div>
           <div style={{ color: 'rgba(255,255,255,0.65)', fontSize: 12, marginTop: 4 }}>

@@ -176,48 +176,48 @@ const SettingsPage = () => {
   ];
 
   return (
-    <div>
-      <Title level={3} style={{ marginBottom: 20 }}>Cài đặt tài khoản</Title>
+    <div className="page-enter">
+      {/* Header banner */}
+      <div style={{
+        background: 'linear-gradient(135deg, #1a1f36 0%, #0f172a 50%, #1e3a5f 100%)',
+        borderRadius: 18,
+        padding: '20px 28px',
+        marginBottom: 20,
+        boxShadow: '0 6px 24px rgba(15,23,42,0.2)',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 16,
+        position: 'relative',
+        overflow: 'hidden',
+      }}>
+        <div style={{ position: 'absolute', top: -30, right: 60, width: 120, height: 120, borderRadius: '50%', background: 'rgba(255,255,255,0.05)', pointerEvents: 'none' }} />
+        <Avatar
+          size={56}
+          style={{
+            background: user?.role === 'admin'
+              ? 'linear-gradient(135deg, #722ed1, #531dab)'
+              : 'linear-gradient(135deg, #1890ff, #096dd9)',
+            fontSize: 24, fontWeight: 800, flexShrink: 0,
+            boxShadow: '0 4px 14px rgba(0,0,0,0.3)',
+          }}
+        >
+          {user?.name?.charAt(0)?.toUpperCase()}
+        </Avatar>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+            <span style={{ color: '#fff', fontWeight: 800, fontSize: 18 }}>{user?.name}</span>
+            {user?.role === 'admin' && (
+              <span className="badge-admin">👑 Admin</span>
+            )}
+          </div>
+          <div style={{ color: 'rgba(255,255,255,0.55)', fontSize: 13, marginTop: 2 }}>{user?.email}</div>
+          <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11, marginTop: 4 }}>
+            ⚙️ Quản lý tài khoản & bảo mật
+          </div>
+        </div>
+      </div>
 
       <div style={{ maxWidth: 680 }}>
-        {/* User Card Header */}
-        <Card
-          style={{
-            borderRadius: 16,
-            marginBottom: 20,
-            boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
-          }}
-          bodyStyle={{ padding: '20px 24px' }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <Avatar
-              size={64}
-              style={{
-                backgroundColor: user?.role === 'admin' ? '#722ed1' : '#1890ff',
-                fontSize: 26,
-                fontWeight: 600,
-                flexShrink: 0,
-              }}
-            >
-              {user?.name?.charAt(0)?.toUpperCase()}
-            </Avatar>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Title level={4} style={{ margin: 0 }} ellipsis>{user?.name}</Title>
-                {user?.role === 'admin' && (
-                  <Tag color="purple" icon={<CrownOutlined />} style={{ margin: 0, fontSize: 11 }}>
-                    Quản trị viên
-                  </Tag>
-                )}
-              </div>
-              <Text type="secondary" style={{ display: 'block', fontSize: 13 }} ellipsis>{user?.email}</Text>
-              <Text type="secondary" style={{ fontSize: 11, color: '#8c8c8c', marginTop: 4, display: 'block' }}>
-                Thành viên từ: {user?.created_at ? new Date(user.created_at).toLocaleDateString('vi-VN') : 'Mới'}
-              </Text>
-            </div>
-          </div>
-        </Card>
-
         {/* Tabs for Profile and Password */}
         <Card
           style={{
