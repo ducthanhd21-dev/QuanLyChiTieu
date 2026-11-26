@@ -16,6 +16,7 @@ import StatisticsPage from './pages/StatisticsPage';
 import SettingsPage from './pages/SettingsPage';
 import AdminPage from './pages/AdminPage';
 import IncomePage from './pages/IncomePage';
+import DailyExpensesPage from './pages/DailyExpensesPage';
 
 dayjs.locale('vi');
 
@@ -85,6 +86,16 @@ function App() {
                 <ProtectedRoute>
                   <AppLayout>
                     <IncomePage />
+                  </AppLayout>
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/expenses"
+              element={
+                <ProtectedRoute>
+                  <AppLayout>
+                    <DailyExpensesPage />
                   </AppLayout>
                 </ProtectedRoute>
               }

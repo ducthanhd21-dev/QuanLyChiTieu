@@ -10,6 +10,7 @@ import {
   MenuOutlined,
   CrownOutlined,
   RiseOutlined,
+  ShoppingOutlined,
 } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -29,6 +30,7 @@ const AppLayout = ({ children }) => {
     { key: '/dashboard', icon: <HomeOutlined />, label: 'Trang chủ' },
     { key: '/bills', icon: <FileTextOutlined />, label: 'Khoản thanh toán' },
     { key: '/income', icon: <RiseOutlined style={{ color: '#52c41a' }} />, label: 'Thu nhập' },
+    { key: '/expenses', icon: <ShoppingOutlined style={{ color: '#fa8c16' }} />, label: 'Chi tiêu hàng ngày' },
     { key: '/statistics', icon: <BarChartOutlined />, label: 'Thống kê' },
     { key: '/settings', icon: <SettingOutlined />, label: 'Cài đặt' },
   ];
