@@ -49,6 +49,10 @@ const DashboardPage = () => {
 
   // Copying state
   const [copying, setCopying] = useState(false);
+  const [copyModalOpen, setCopyModalOpen] = useState(false);
+  const [prevMonthBills, setPrevMonthBills] = useState([]);
+  const [prevBillsLoading, setPrevBillsLoading] = useState(false);
+  const [selectedCopyIds, setSelectedCopyIds] = useState([]);
 
   const fetchSummary = useCallback(async () => {
     setLoading(true);
@@ -116,28 +120,84 @@ const DashboardPage = () => {
     fetchSummary();
   };
 
-  // Copy bills from previous month
-  const handleCopyFromPreviousMonth = async () => {
-    setCopying(true);
+  // Open modal to select bills from previous month
+  const handleOpenCopyModal = async () => {
+    setCopyModalOpen(true);
+    setPrevBillsLoading(true);
+    setPrevMonthBills([]);
+    setSelectedCopyIds([]);
     try {
       const prevMonth = selectedMonth.subtract(1, 'month').format('YYYY-MM');
-      const targetMonth = selectedMonth.format('YYYY-MM');
-      const res = await billService.copyFromMonth(prevMonth, targetMonth);
-      const count = res.data.data.copiedCount;
-      if (count > 0) {
-        notification.success({
-          message: `Đã sao chép thành công ${count} khoản từ tháng ${selectedMonth.subtract(1, 'month').format('MM/YYYY')}!`,
-        });
-        fetchSummary();
-      } else {
-        notification.info({
-          message: `Tháng ${selectedMonth.subtract(1, 'month').format('MM/YYYY')} không có hóa đơn nào để sao chép.`,
-        });
-      }
+      const res = await billService.getAll({ month: prevMonth });
+      const bills = res.data.data || [];
+      setPrevMonthBills(bills);
+
+      // Auto-select bills that do not already exist (by title) in the current month
+      const existingTitles = new Set(
+        (summary?.bills || []).map((b) => b.title.trim().toLowerCase())
+      );
+      const defaultSelected = bills
+        .filter((b) => !existingTitles.has(b.title.trim().toLowerCase()))
+        .map((b) => b.id);
+      setSelectedCopyIds(defaultSelected);
+    } catch {
+      notification.error({ message: 'Không thể tải danh sách hóa đơn tháng trước.' });
+      setCopyModalOpen(false);
+    } finally {
+      setPrevBillsLoading(false);
+    }
+  };
+
+  // Copy selected bills to current month
+  const handleCopySelectedBills = async () => {
+    if (selectedCopyIds.length === 0) {
+      notification.warning({ message: 'Vui lòng chọn ít nhất 1 hóa đơn để sao chép.' });
+      return;
+    }
+    setCopying(true);
+    try {
+      const selectedBills = prevMonthBills.filter((b) => selectedCopyIds.includes(b.id));
+      const maxDays = selectedMonth.daysInMonth();
+
+      await Promise.all(
+        selectedBills.map((bill) => {
+          const day = Math.min(dayjs(bill.due_date).date(), maxDays);
+          const newDueDate = selectedMonth.date(day).format('YYYY-MM-DD');
+          return billService.create({
+            title: bill.title,
+            amount: parseFloat(bill.amount),
+            due_date: newDueDate,
+            category: bill.category || 'Hóa đơn',
+            note: bill.note || '',
+            is_recurring: false,
+            duration_months: 1,
+          });
+        })
+      );
+
+      notification.success({
+        message: `Đã sao chép thành công ${selectedBills.length} khoản từ tháng ${selectedMonth.subtract(1, 'month').format('MM/YYYY')}!`,
+      });
+      setCopyModalOpen(false);
+      fetchSummary();
     } catch {
       notification.error({ message: 'Sao chép thất bại. Vui lòng thử lại.' });
     } finally {
       setCopying(false);
+    }
+  };
+
+  const toggleSelectCopyId = (id) => {
+    setSelectedCopyIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  const handleToggleSelectAllCopy = (checked) => {
+    if (checked) {
+      setSelectedCopyIds(prevMonthBills.map((b) => b.id));
+    } else {
+      setSelectedCopyIds([]);
     }
   };
 
@@ -723,8 +783,7 @@ const DashboardPage = () => {
               <Button
                 type="primary"
                 icon={<CopyOutlined />}
-                loading={copying}
-                onClick={handleCopyFromPreviousMonth}
+                onClick={handleOpenCopyModal}
               >
                 Sao chép từ tháng trước ({selectedMonth.subtract(1, 'month').format('MM/YYYY')})
               </Button>
@@ -756,8 +815,7 @@ const DashboardPage = () => {
                   size="small"
                   type="text"
                   icon={<CopyOutlined />}
-                  onClick={handleCopyFromPreviousMonth}
-                  loading={copying}
+                  onClick={handleOpenCopyModal}
                   style={{ color: '#1890ff', flexShrink: 0, marginLeft: 8 }}
                 >
                   {isMobile ? 'Sao chép' : 'Sao chép thêm từ tháng trước'}
@@ -1025,6 +1083,135 @@ const DashboardPage = () => {
             addonAfter="VNĐ"
           />
         </div>
+      </Modal>
+
+      {/* Copy from Previous Month Selection Modal */}
+      <Modal
+        title={
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <CopyOutlined style={{ color: '#1890ff' }} />
+            <span>
+              Chọn hóa đơn từ tháng {selectedMonth.subtract(1, 'month').format('MM/YYYY')}
+            </span>
+          </div>
+        }
+        open={copyModalOpen}
+        onCancel={() => !copying && setCopyModalOpen(false)}
+        width={560}
+        centered
+        footer={[
+          <Button key="cancel" onClick={() => setCopyModalOpen(false)} disabled={copying}>
+            Hủy
+          </Button>,
+          <Button
+            key="copy"
+            type="primary"
+            icon={<CopyOutlined />}
+            loading={copying}
+            disabled={prevBillsLoading || selectedCopyIds.length === 0}
+            onClick={handleCopySelectedBills}
+          >
+            Sao chép {selectedCopyIds.length > 0 ? `(${selectedCopyIds.length} khoản)` : ''}
+          </Button>,
+        ]}
+      >
+        <Spin spinning={prevBillsLoading}>
+          {!prevBillsLoading && prevMonthBills.length === 0 ? (
+            <Empty
+              description={`Tháng ${selectedMonth.subtract(1, 'month').format('MM/YYYY')} không có hóa đơn nào để sao chép.`}
+              style={{ padding: '24px 0' }}
+            />
+          ) : (
+            <div>
+              {/* Select all header */}
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: '8px 12px',
+                background: '#f5f8ff',
+                borderRadius: 10,
+                marginBottom: 12,
+                border: '1px solid #e6f0ff',
+              }}>
+                <Checkbox
+                  checked={prevMonthBills.length > 0 && selectedCopyIds.length === prevMonthBills.length}
+                  indeterminate={selectedCopyIds.length > 0 && selectedCopyIds.length < prevMonthBills.length}
+                  onChange={(e) => handleToggleSelectAllCopy(e.target.checked)}
+                >
+                  <Text strong style={{ fontSize: 13 }}>
+                    Chọn tất cả ({selectedCopyIds.length}/{prevMonthBills.length})
+                  </Text>
+                </Checkbox>
+                <Text strong style={{ color: '#1890ff', fontSize: 13 }}>
+                  {formatCurrency(
+                    prevMonthBills
+                      .filter((b) => selectedCopyIds.includes(b.id))
+                      .reduce((sum, b) => sum + (parseFloat(b.amount) || 0), 0)
+                  )}
+                </Text>
+              </div>
+
+              {/* Scrollable bill list */}
+              <div style={{ maxHeight: '52vh', overflowY: 'auto', paddingRight: 4 }}>
+                {prevMonthBills.map((bill) => {
+                  const isSelected = selectedCopyIds.includes(bill.id);
+                  const alreadyExists = (summary?.bills || []).some(
+                    (b) => b.title.trim().toLowerCase() === bill.title.trim().toLowerCase()
+                  );
+                  return (
+                    <div
+                      key={bill.id}
+                      onClick={() => toggleSelectCopyId(bill.id)}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 10,
+                        padding: '10px 12px',
+                        marginBottom: 8,
+                        borderRadius: 12,
+                        cursor: 'pointer',
+                        border: `1.5px solid ${isSelected ? '#1890ff' : '#f0f0f0'}`,
+                        background: isSelected ? '#f0f7ff' : '#fff',
+                        transition: 'all 0.15s ease',
+                      }}
+                    >
+                      <Checkbox
+                        checked={isSelected}
+                        onClick={(e) => e.stopPropagation()}
+                        onChange={() => toggleSelectCopyId(bill.id)}
+                      />
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                          <Text strong style={{ fontSize: 14 }} ellipsis>
+                            {bill.title}
+                          </Text>
+                          {bill.category && (
+                            <Tag color="blue" style={{ margin: 0, fontSize: 10 }}>
+                              {bill.category}
+                            </Tag>
+                          )}
+                          {alreadyExists && (
+                            <Tag color="orange" style={{ margin: 0, fontSize: 10 }}>
+                              Đã có tháng này
+                            </Tag>
+                          )}
+                        </div>
+                        <Text type="secondary" style={{ fontSize: 12 }}>
+                          Ngày {dayjs(bill.due_date).format('DD/MM')}
+                          {bill.note ? ` · ${bill.note}` : ''}
+                        </Text>
+                      </div>
+                      <Text strong style={{ color: '#1890ff', fontSize: 14, whiteSpace: 'nowrap' }}>
+                        {formatCurrency(bill.amount)}
+                      </Text>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </Spin>
       </Modal>
 
       {/* Full-size Receipt Image Preview */}
