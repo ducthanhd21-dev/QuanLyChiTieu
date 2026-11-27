@@ -92,6 +92,26 @@ const UserModel = {
     return rows;
   },
 
+  // ADMIN: Delete a user and all their data
+  async deleteUser(userId) {
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+      await client.query('DELETE FROM daily_expenses WHERE user_id = $1', [userId]);
+      await client.query('DELETE FROM income WHERE user_id = $1', [userId]);
+      await client.query('DELETE FROM budgets WHERE user_id = $1', [userId]);
+      await client.query('DELETE FROM bills WHERE user_id = $1', [userId]);
+      await client.query('DELETE FROM users WHERE id = $1', [userId]);
+      await client.query('COMMIT');
+      return true;
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
+    }
+  },
+
   // ADMIN: Get detailed bills of a user
   async getUserBillsForAdmin(userId, month = null) {
     let sql = 'SELECT * FROM bills WHERE user_id = $1';

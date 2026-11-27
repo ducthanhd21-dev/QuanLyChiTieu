@@ -1,12 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
   Row, Col, Card, Typography, DatePicker, Table, Tag,
-  Button, Modal, Spin, notification, Avatar, Space, Empty, Grid, Badge,
+  Button, Modal, Spin, notification, Avatar, Space, Empty, Grid, Badge, Popconfirm,
 } from 'antd';
 import {
   TeamOutlined, FileTextOutlined, DollarOutlined,
   EyeOutlined, CrownOutlined, UserOutlined, CheckCircleOutlined,
-  ClockCircleOutlined, FileExcelOutlined,
+  ClockCircleOutlined, FileExcelOutlined, DeleteOutlined,
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { adminService } from '../services';
@@ -72,6 +72,18 @@ const AdminPage = () => {
     }
   };
 
+  const handleDeleteUser = async (targetUser) => {
+    try {
+      const res = await adminService.deleteUser(targetUser.id);
+      notification.success({ message: res.data.message || `Đã xóa người dùng "${targetUser.name}".` });
+      fetchAdminData();
+    } catch (err) {
+      notification.error({
+        message: err.response?.data?.message || 'Không thể xóa người dùng.',
+      });
+    }
+  };
+
   const statCards = data ? [
     {
       title: 'Tài khoản đăng ký',
@@ -114,7 +126,7 @@ const AdminPage = () => {
           <Avatar style={{ backgroundColor: u.role === 'admin' ? '#722ed1' : '#1890ff' }}>
             {u.name?.charAt(0)?.toUpperCase()}
           </Avatar>
-          <div>
+          <div className="page-enter">
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <Text strong>{u.name}</Text>
               {u.role === 'admin' && (
@@ -179,15 +191,36 @@ const AdminPage = () => {
       title: 'Thao tác',
       key: 'actions',
       render: (_, u) => (
-        <Button
-          type="primary"
-          ghost
-          size="small"
-          icon={<EyeOutlined />}
-          onClick={() => handleViewUserBills(u)}
-        >
-          Xem hóa đơn
-        </Button>
+        <Space size={6}>
+          <Button
+            type="primary"
+            size="small"
+            icon={<EyeOutlined />}
+            onClick={() => handleViewUserBills(u)}
+            style={{ borderRadius: 6, fontWeight: 500 }}
+          >
+            Xem hóa đơn
+          </Button>
+          {u.role !== 'admin' && (
+            <Popconfirm
+              title="Xóa người dùng"
+              description={`Bạn có chắc muốn xóa "${u.name}"? Toàn bộ dữ liệu sẽ bị mất.`}
+              onConfirm={() => handleDeleteUser(u)}
+              okText="Xóa"
+              cancelText="Hủy"
+              okButtonProps={{ danger: true }}
+            >
+              <Button
+                danger
+                size="small"
+                icon={<DeleteOutlined />}
+                style={{ borderRadius: 6 }}
+              >
+                Xóa
+              </Button>
+            </Popconfirm>
+          )}
+        </Space>
       ),
     },
   ];
@@ -202,7 +235,7 @@ const AdminPage = () => {
   };
 
   return (
-    <div>
+    <div className="page-enter">
       {/* Header */}
       <div style={{
         marginBottom: 20,
@@ -382,15 +415,36 @@ const AdminPage = () => {
                     </div>
                   </div>
 
-                  <Button
-                    type="primary"
-                    ghost
-                    block
-                    icon={<EyeOutlined />}
-                    onClick={() => handleViewUserBills(u)}
-                  >
-                    Xem chi tiết hóa đơn
-                  </Button>
+                  <Space direction="vertical" style={{ width: '100%' }} size={8}>
+                    <Button
+                      type="primary"
+                      block
+                      icon={<EyeOutlined />}
+                      onClick={() => handleViewUserBills(u)}
+                      style={{ borderRadius: 8, fontWeight: 500, height: 38 }}
+                    >
+                      Xem chi tiết hóa đơn
+                    </Button>
+                    {u.role !== 'admin' && (
+                      <Popconfirm
+                        title="Xóa người dùng"
+                        description={`Bạn có chắc muốn xóa "${u.name}"? Toàn bộ dữ liệu sẽ bị mất.`}
+                        onConfirm={() => handleDeleteUser(u)}
+                        okText="Xóa"
+                        cancelText="Hủy"
+                        okButtonProps={{ danger: true }}
+                      >
+                        <Button
+                          danger
+                          block
+                          icon={<DeleteOutlined />}
+                          style={{ borderRadius: 8, height: 38 }}
+                        >
+                          Xóa người dùng
+                        </Button>
+                      </Popconfirm>
+                    )}
+                  </Space>
                 </div>
               ))}
             </div>

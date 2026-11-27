@@ -15,4 +15,7 @@ router.get('/users', AdminController.getUsersWithBills);
 // GET /api/admin/users/:userId/bills?month=YYYY-MM
 router.get('/users/:userId/bills', AdminController.getUserBills);
 
+// DELETE /api/admin/users/:userId
+router.delete('/users/:userId', AdminController.deleteUser);
+
 module.exports = router;

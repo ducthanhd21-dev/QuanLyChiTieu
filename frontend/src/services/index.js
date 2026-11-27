@@ -32,6 +32,7 @@ export const statsService = {
 export const adminService = {
   getUsersWithBills: (month) => api.get('/admin/users', { params: { month } }),
   getUserBills: (userId, month) => api.get(`/admin/users/${userId}/bills`, { params: { month } }),
+  deleteUser: (userId) => api.delete(`/admin/users/${userId}`),
 };
 
 export const budgetService = {

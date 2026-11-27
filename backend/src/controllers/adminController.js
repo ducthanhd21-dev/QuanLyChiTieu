@@ -93,6 +93,42 @@ const AdminController = {
       });
     }
   },
+  // DELETE /api/admin/users/:userId
+  async deleteUser(req, res) {
+    try {
+      const { userId } = req.params;
+      const adminId = req.user.id;
+
+      // Admin cannot delete themselves
+      if (parseInt(userId) === adminId) {
+        return res.status(400).json({
+          success: false,
+          message: 'Bạn không thể xóa chính mình.',
+        });
+      }
+
+      const user = await UserModel.findById(userId);
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: 'Không tìm thấy người dùng.',
+        });
+      }
+
+      await UserModel.deleteUser(userId);
+
+      return res.status(200).json({
+        success: true,
+        message: `Đã xóa người dùng "${user.name}" và toàn bộ dữ liệu liên quan.`,
+      });
+    } catch (error) {
+      console.error('Admin deleteUser error:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Lỗi server khi xóa người dùng.',
+      });
+    }
+  },
 };
 
 module.exports = AdminController;
