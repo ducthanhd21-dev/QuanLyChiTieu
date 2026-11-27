@@ -98,7 +98,7 @@ const UserModel = {
     try {
       await client.query('BEGIN');
       await client.query('DELETE FROM daily_expenses WHERE user_id = $1', [userId]);
-      await client.query('DELETE FROM income WHERE user_id = $1', [userId]);
+      await client.query('DELETE FROM income_entries WHERE user_id = $1', [userId]);
       await client.query('DELETE FROM budgets WHERE user_id = $1', [userId]);
       await client.query('DELETE FROM bills WHERE user_id = $1', [userId]);
       await client.query('DELETE FROM users WHERE id = $1', [userId]);
