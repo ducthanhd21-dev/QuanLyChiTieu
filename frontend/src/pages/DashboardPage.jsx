@@ -800,9 +800,22 @@ const DashboardPage = () => {
         {/* Bills List */}
         <Card
           title={
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', minWidth: 0 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0, overflow: 'hidden' }}>
-                <Text strong style={{ fontSize: 15, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Danh sách khoản thanh toán</Text>
+            <div style={{
+              display: 'flex',
+              flexDirection: isMobile ? 'column' : 'row',
+              justifyContent: 'space-between',
+              alignItems: isMobile ? 'stretch' : 'center',
+              gap: isMobile ? 10 : 8,
+              width: '100%',
+              padding: isMobile ? '4px 0' : 0,
+            }}>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: isMobile ? 'space-between' : 'flex-start',
+                gap: 8,
+              }}>
+                <Text strong style={{ fontSize: 15 }}>Danh sách khoản thanh toán</Text>
                 {summary?.bills?.length > 0 && (
                   <Tag color="blue" style={{ margin: 0, borderRadius: 10, flexShrink: 0 }}>
                     {summary.bills.length} khoản
@@ -812,13 +825,23 @@ const DashboardPage = () => {
 
               {summary?.bills?.length > 0 && (
                 <Button
-                  size="small"
-                  type="text"
+                  size={isMobile ? 'middle' : 'small'}
+                  type={isMobile ? 'default' : 'text'}
                   icon={<CopyOutlined />}
                   onClick={handleOpenCopyModal}
-                  style={{ color: '#1890ff', flexShrink: 0, marginLeft: 8 }}
+                  style={isMobile ? {
+                    color: '#1890ff',
+                    background: '#f0f7ff',
+                    borderColor: '#bae0ff',
+                    borderRadius: 10,
+                    fontWeight: 500,
+                    width: '100%',
+                  } : {
+                    color: '#1890ff',
+                    flexShrink: 0,
+                  }}
                 >
-                  {isMobile ? 'Sao chép' : 'Sao chép thêm từ tháng trước'}
+                  {isMobile ? 'Sao chép từ tháng trước' : 'Sao chép thêm từ tháng trước'}
                 </Button>
               )}
             </div>
