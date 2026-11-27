@@ -1,4 +1,4 @@
-const CACHE_NAME = 'hoadon-v8';
+const CACHE_NAME = 'hoadon-v9';
 const urlsToCache = [
   '/icon-192.png',
   '/manifest.json'
