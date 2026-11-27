@@ -118,8 +118,8 @@ const BillController = {
       return res.status(201).json({
         success: true,
         message: months > 1
-          ? `Tạo thành công ${months} khoản thanh toán trong ${months} tháng!`
-          : 'Tạo khoản thanh toán thành công!',
+          ? `Tạo thành công ${months} khoản thanh toán trong ${months} tháng !`
+          : 'Tạo khoản thanh toán thành công !',
         data: bill,
         created_count: months,
       });
@@ -162,7 +162,7 @@ const BillController = {
 
       return res.status(200).json({
         success: true,
-        message: 'Cập nhật thành công!',
+        message: 'Cập nhật thành công !',
         data: updated,
       });
     } catch (error) {
@@ -194,7 +194,7 @@ const BillController = {
 
       return res.status(200).json({
         success: true,
-        message: receipt_url ? 'Đã đính kèm ảnh biên lai!' : 'Đã gỡ ảnh biên lai.',
+        message: receipt_url ? 'Đã đính kèm ảnh biên lai !' : 'Đã gỡ ảnh biên lai.',
         data: updated,
       });
     } catch (error) {
@@ -223,7 +223,7 @@ const BillController = {
 
       return res.status(200).json({
         success: true,
-        message: `Đã sao chép thành công ${count} khoản thanh toán từ tháng ${fromMonth} sang ${toMonth}!`,
+        message: `Đã sao chép thành công ${count} khoản thanh toán từ tháng ${fromMonth} sang ${toMonth} !`,
         data: { copiedCount: count },
       });
     } catch (error) {
@@ -253,7 +253,7 @@ const BillController = {
 
       return res.status(200).json({
         success: true,
-        message: 'Xóa khoản thanh toán thành công!',
+        message: 'Xóa khoản thanh toán thành công !',
       });
     } catch (error) {
       console.error('Delete bill error:', error);
@@ -282,8 +282,8 @@ const BillController = {
       const updated = await BillModel.findById(id, userId);
 
       const statusMsg = updated.is_paid
-        ? 'Đã đánh dấu đã thanh toán!'
-        : 'Đã bỏ đánh dấu thanh toán!';
+        ? 'Đã đánh dấu đã thanh toán !'
+        : 'Đã bỏ đánh dấu thanh toán !';
 
       return res.status(200).json({
         success: true,

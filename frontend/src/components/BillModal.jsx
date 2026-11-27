@@ -46,19 +46,19 @@ const BillModal = ({ open, bill, defaultMonth, onClose, onSuccess }) => {
   const handleImageUpload = (file) => {
     const isImage = file.type.startsWith('image/');
     if (!isImage) {
-      message.error('Vui lòng chỉ tải lên tệp hình ảnh!');
+      message.error('Vui lòng chỉ tải lên tệp hình ảnh !');
       return Upload.LIST_IGNORE;
     }
     const isLt3M = file.size / 1024 / 1024 < 3;
     if (!isLt3M) {
-      message.error('Kích thước ảnh phải nhỏ hơn 3MB!');
+      message.error('Kích thước ảnh phải nhỏ hơn 3MB !');
       return Upload.LIST_IGNORE;
     }
 
     const reader = new FileReader();
     reader.onload = (e) => {
       setReceiptUrl(e.target.result);
-      message.success('Đã tải ảnh biên lai thành công!');
+      message.success('Đã tải ảnh biên lai thành công !');
     };
     reader.readAsDataURL(file);
     return false; // prevent default upload
@@ -79,13 +79,13 @@ const BillModal = ({ open, bill, defaultMonth, onClose, onSuccess }) => {
 
       if (isEditing) {
         await billService.update(bill.id, payload);
-        notification.success({ message: 'Cập nhật thành công!' });
+        notification.success({ message: 'Cập nhật thành công !' });
       } else {
         const duration = values.duration_months || 1;
         await billService.create({ ...payload, duration_months: duration });
         const msg = duration > 1
-          ? `Đã thêm hóa đơn cho ${duration} tháng liên tiếp!`
-          : 'Thêm khoản thanh toán thành công!';
+          ? `Đã thêm hóa đơn cho ${duration} tháng liên tiếp !`
+          : 'Thêm khoản thanh toán thành công !';
         notification.success({ message: msg });
       }
       onSuccess();

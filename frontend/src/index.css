@@ -150,8 +150,10 @@ body {
 }
 .ant-notification .ant-notification-notice-section {
   gap: 3px !important;
-  padding-inline-end: 26px !important;
+  padding-inline-end: 0 !important;
 }
+.ant-notification .ant-notification-notice-closable .ant-notification-notice-title,
+.ant-notification .ant-notification-notice-closable .ant-notification-notice-description,
 .ant-notification .ant-notification-notice-title,
 .ant-notification .ant-notification-notice-message {
   font-weight: 600 !important;
@@ -167,17 +169,7 @@ body {
   padding-inline-end: 0 !important;
 }
 .ant-notification .ant-notification-notice-close {
-  border-radius: 50% !important;
-  top: 50% !important;
-  transform: translateY(-50%) !important;
-  inset-inline-end: 14px !important;
-  width: 26px !important;
-  height: 26px !important;
-  color: #94a3b8 !important;
-}
-.ant-notification .ant-notification-notice-close:hover {
-  background: #f1f5f9 !important;
-  color: #334155 !important;
+  display: none !important;
 }
 
 @media (min-width: 768px) {
@@ -355,9 +347,6 @@ body {
     right: 0 !important;
     padding: 14px 16px !important;
     border-radius: 16px !important;
-  }
-  .ant-notification .ant-notification-notice-close {
-    inset-inline-end: 12px !important;
   }
 }
 

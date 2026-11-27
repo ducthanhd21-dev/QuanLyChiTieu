@@ -88,7 +88,7 @@ const DailyExpensesPage = () => {
   // Quick submit
   const handleQuickAdd = async () => {
     if (!quickAmount || quickAmount <= 0) {
-      notification.warning({ message: 'Vui lòng nhập số tiền chi tiêu!' });
+      notification.warning({ message: 'Vui lòng nhập số tiền chi tiêu !' });
       return;
     }
     setQuickSubmitting(true);
@@ -140,7 +140,7 @@ const DailyExpensesPage = () => {
         category: values.category,
         note: values.note?.trim() || '',
       });
-      notification.success({ message: 'Đã cập nhật khoản chi!' });
+      notification.success({ message: 'Đã cập nhật khoản chi !' });
       setEditModalOpen(false);
       fetchData();
     } catch (err) {
@@ -154,7 +154,7 @@ const DailyExpensesPage = () => {
   const handleDelete = async (id) => {
     try {
       await expenseService.remove(id);
-      notification.success({ message: 'Đã xóa khoản chi!' });
+      notification.success({ message: 'Đã xóa khoản chi !' });
       fetchData();
     } catch {
       notification.error({ message: 'Xóa thất bại.' });

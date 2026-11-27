@@ -36,7 +36,7 @@ const AuthController = {
 
       return res.status(201).json({
         success: true,
-        message: 'Đăng ký thành công!',
+        message: 'Đăng ký thành công !',
         data: { user, token },
       });
     } catch (error) {
@@ -79,7 +79,7 @@ const AuthController = {
 
       return res.status(200).json({
         success: true,
-        message: 'Đăng nhập thành công!',
+        message: 'Đăng nhập thành công !',
         data: { user: userWithoutPassword, token },
       });
     } catch (error) {
@@ -124,7 +124,7 @@ const AuthController = {
 
       return res.status(200).json({
         success: true,
-        message: 'Cập nhật thông tin thành công!',
+        message: 'Cập nhật thông tin thành công !',
         data: { user: updatedUser },
       });
     } catch (error) {
@@ -179,7 +179,7 @@ const AuthController = {
 
       return res.status(200).json({
         success: true,
-        message: 'Đổi mật khẩu thành công!',
+        message: 'Đổi mật khẩu thành công !',
       });
     } catch (error) {
       console.error('changePassword error:', error);

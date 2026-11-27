@@ -117,7 +117,7 @@ const BillsPage = () => {
     try {
       await billService.togglePaid(bill.id);
       notification.success({
-        message: !bill.is_paid ? 'Đã đánh dấu đã thanh toán!' : 'Đã bỏ đánh dấu thanh toán!',
+        message: !bill.is_paid ? 'Đã đánh dấu đã thanh toán !' : 'Đã bỏ đánh dấu thanh toán !',
         duration: 2,
       });
       fetchBills();
@@ -129,7 +129,7 @@ const BillsPage = () => {
   const handleDelete = async (id) => {
     try {
       await billService.remove(id);
-      notification.success({ message: 'Đã xóa khoản thanh toán!' });
+      notification.success({ message: 'Đã xóa khoản thanh toán !' });
       fetchBills();
     } catch {
       notification.error({ message: 'Xóa thất bại.' });
@@ -153,7 +153,7 @@ const BillsPage = () => {
       return;
     }
     exportBillsToExcel(bills, 'Tất cả');
-    notification.success({ message: 'Đã xuất file Excel thành công!' });
+    notification.success({ message: 'Đã xuất file Excel thành công !' });
   };
 
   const toggleGroup = (key) => {

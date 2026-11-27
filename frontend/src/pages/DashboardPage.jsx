@@ -87,7 +87,7 @@ const DashboardPage = () => {
   const handleTogglePaid = async (bill) => {
     try {
       await billService.togglePaid(bill.id);
-      const msg = !bill.is_paid ? 'Đã đánh dấu đã thanh toán!' : 'Đã bỏ đánh dấu thanh toán!';
+      const msg = !bill.is_paid ? 'Đã đánh dấu đã thanh toán !' : 'Đã bỏ đánh dấu thanh toán !';
       notification.success({ message: msg, duration: 2 });
       fetchSummary();
     } catch {
@@ -98,7 +98,7 @@ const DashboardPage = () => {
   const handleDelete = async (id) => {
     try {
       await billService.remove(id);
-      notification.success({ message: 'Đã xóa khoản thanh toán!' });
+      notification.success({ message: 'Đã xóa khoản thanh toán !' });
       fetchSummary();
     } catch {
       notification.error({ message: 'Xóa thất bại.' });
@@ -176,7 +176,7 @@ const DashboardPage = () => {
       );
 
       notification.success({
-        message: `Đã sao chép thành công ${selectedBills.length} khoản từ tháng ${selectedMonth.subtract(1, 'month').format('MM/YYYY')}!`,
+        message: `Đã sao chép thành công ${selectedBills.length} khoản từ tháng ${selectedMonth.subtract(1, 'month').format('MM/YYYY')} !`,
       });
       setCopyModalOpen(false);
       fetchSummary();
@@ -207,7 +207,7 @@ const DashboardPage = () => {
     try {
       const month = selectedMonth.format('YYYY-MM');
       await budgetService.setBudget({ month, amount: budgetInput });
-      notification.success({ message: 'Đã lưu hạn mức ngân sách!' });
+      notification.success({ message: 'Đã lưu hạn mức ngân sách !' });
       setBudgetModalOpen(false);
       fetchSummary();
     } catch {
@@ -224,7 +224,7 @@ const DashboardPage = () => {
       return;
     }
     exportBillsToExcel(summary.bills, selectedMonth.format('MM/YYYY'));
-    notification.success({ message: 'Đã xuất file Excel thành công!' });
+    notification.success({ message: 'Đã xuất file Excel thành công !' });
   };
 
   // Greeting based on time of day

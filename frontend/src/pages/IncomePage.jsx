@@ -79,10 +79,10 @@ const IncomePage = () => {
       };
       if (editingEntry) {
         await incomeService.update(editingEntry.id, payload);
-        notification.success({ message: 'Đã cập nhật khoản thu nhập!' });
+        notification.success({ message: 'Đã cập nhật khoản thu nhập !' });
       } else {
         await incomeService.create(payload);
-        notification.success({ message: 'Đã thêm khoản thu nhập!' });
+        notification.success({ message: 'Đã thêm khoản thu nhập !' });
       }
       setModalOpen(false);
       fetchData();
@@ -97,7 +97,7 @@ const IncomePage = () => {
   const handleDelete = async (id) => {
     try {
       await incomeService.remove(id);
-      notification.success({ message: 'Đã xóa khoản thu nhập!' });
+      notification.success({ message: 'Đã xóa khoản thu nhập !' });
       fetchData();
     } catch {
       notification.error({ message: 'Xóa thất bại.' });

@@ -231,7 +231,7 @@ const AdminPage = () => {
       return;
     }
     exportAdminUsersToExcel(data.users, selectedMonth.format('MM/YYYY'));
-    notification.success({ message: 'Đã xuất file báo cáo Excel thành công!' });
+    notification.success({ message: 'Đã xuất file báo cáo Excel thành công !' });
   };
 
   return (

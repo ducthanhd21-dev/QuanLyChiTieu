@@ -57,7 +57,7 @@ const BudgetController = {
 
       return res.status(200).json({
         success: true,
-        message: 'Cập nhật hạn mức ngân sách thành công!',
+        message: 'Cập nhật hạn mức ngân sách thành công !',
         data: {
           month: budget.month,
           amount: parseFloat(budget.amount),

@@ -37,7 +37,7 @@ const SettingsPage = () => {
     try {
       await authService.updateProfile({ name: values.name.trim() });
       updateUser({ name: values.name.trim() });
-      notification.success({ message: 'Cập nhật họ tên thành công!' });
+      notification.success({ message: 'Cập nhật họ tên thành công !' });
     } catch (err) {
       notification.error({
         message: err.response?.data?.message || 'Cập nhật thông tin thất bại.',
@@ -55,7 +55,7 @@ const SettingsPage = () => {
         currentPassword: values.currentPassword,
         newPassword: values.newPassword,
       });
-      notification.success({ message: 'Đổi mật khẩu thành công! Vui lòng ghi nhớ mật khẩu mới.' });
+      notification.success({ message: 'Đổi mật khẩu thành công ! Vui lòng ghi nhớ mật khẩu mới.' });
       passwordForm.resetFields();
     } catch (err) {
       notification.error({
