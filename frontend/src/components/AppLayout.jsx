@@ -317,6 +317,29 @@ const AppLayout = ({ children }) => {
             <span className="bar-title">{currentPageTitle}</span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            {user?.role === 'admin' && (
+              <Button
+                size="small"
+                icon={<CrownOutlined style={{ color: location.pathname === '/admin' ? '#ffd666' : '#faad14' }} />}
+                onClick={() => navigate('/admin')}
+                style={{
+                  background: location.pathname === '/admin'
+                    ? 'linear-gradient(135deg, #722ed1, #531dab)'
+                    : '#f9f0ff',
+                  color: location.pathname === '/admin' ? '#fff' : '#722ed1',
+                  borderColor: '#d3adf7',
+                  borderRadius: 20,
+                  fontWeight: 600,
+                  fontSize: 12,
+                  padding: '0 10px',
+                  height: 30,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                }}
+              >
+                Admin
+              </Button>
+            )}
             <Avatar
               size={32}
               style={{
