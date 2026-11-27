@@ -777,7 +777,7 @@ const DashboardPage = () => {
               Tháng {selectedMonth.format('MM/YYYY')} chưa có khoản thanh toán nào
             </Title>
             <Text type="secondary" style={{ display: 'block', marginBottom: 14 }}>
-              Bạn có thể sao chép nhanh toàn bộ các khoản từ tháng {selectedMonth.subtract(1, 'month').format('MM/YYYY')} sang tháng này chỉ với 1 click!
+              Bạn có thể chọn các khoản từ tháng {selectedMonth.subtract(1, 'month').format('MM/YYYY')} để sao chép sang tháng này!
             </Text>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'center' }}>
               <Button
